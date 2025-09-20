@@ -1,0 +1,4057 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><%= title %></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            /* GitHub深色主题 - 与登录页一致 */
+            --qoder-bg: #0d1117;
+            --qoder-surface: #161b22;
+            --qoder-surface-hover: #21262d;
+            --qoder-border: #30363d;
+            --qoder-text: #f0f6fc;
+            --qoder-text-secondary: #8b949e;
+            --qoder-primary: #238636;
+            --qoder-primary-hover: #1a6b2b;
+            --qoder-success: #3fb950;
+            --qoder-warning: #d29922;
+            --qoder-danger: #da3633;
+            --qoder-sidebar: var(--qoder-surface);
+            --qoder-sidebar-hover: var(--qoder-surface-hover);
+            
+            /* 统一的阴影和效果 */
+            --shadow-primary: rgba(35, 134, 54, 0.3);
+            --glow-primary: rgba(35, 134, 54, 0.5);
+            --glass-effect: rgba(255, 255, 255, 0.05);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--qoder-bg);
+            color: var(--qoder-text);
+            font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            /* 与登录页一致的背景风格 */
+            min-height: 100vh;
+            position: relative;
+        }
+        
+
+        
+        .sidebar {
+            background: var(--qoder-surface);
+            border: 1px solid var(--qoder-border);
+            min-height: 100vh;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 280px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            /* 与登录页一致的阴影效果 */
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.4),
+                0 0 0 1px rgba(255, 255, 255, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+        }
+        
+
+
+        .sidebar-header {
+            padding: 28px 24px;
+            border-bottom: 1px solid var(--qoder-border);
+            background: transparent;
+        }
+
+        .sidebar-header h4 {
+            color: var(--qoder-text);
+            font-size: 20px;
+            font-weight: 600;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            letter-spacing: -0.5px;
+        }
+
+        .sidebar-header .logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--qoder-primary), var(--qoder-success));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: white;
+            font-weight: bold;
+            /* 与登录页一致的阴影效果 */
+            box-shadow: 0 8px 32px var(--shadow-primary);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .sidebar-header .logo::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+            100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+        }
+        
+        .sidebar-nav {
+            flex: 1;
+            padding: 20px 0;
+        }
+
+        .nav-item {
+            margin: 4px 0;
+        }
+
+        .nav-link {
+            color: var(--qoder-text-secondary);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            margin: 4px 16px;
+            /* 与登录页一致的简洁风格 */
+            border: 1px solid transparent;
+        }
+        
+        .nav-link:hover {
+            background: var(--qoder-surface-hover);
+            color: var(--qoder-text);
+            border-color: var(--qoder-border);
+        }
+
+        .nav-link.active {
+            background: var(--qoder-primary);
+            color: white;
+            border-color: var(--qoder-primary);
+        }
+
+        .nav-link i {
+            width: 20px;
+            text-align: center;
+            font-size: 16px;
+        }
+
+        .sidebar-footer {
+            padding: 24px;
+            border-top: 1px solid var(--qoder-border);
+            background: transparent;
+        }
+
+        .btn-logout {
+            background: var(--qoder-bg);
+            border: 1px solid var(--qoder-border);
+            color: var(--qoder-text-secondary);
+            padding: 14px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+
+        .btn-logout:hover {
+            background: var(--qoder-danger);
+            border-color: var(--qoder-danger);
+            color: white;
+        }
+        
+        .main-content {
+            margin-left: 280px;
+            padding: 32px;
+            min-height: 100vh;
+            position: relative;
+            /* 修复内容区域对齐问题 */
+            width: calc(100% - 280px);
+            box-sizing: border-box;
+            /* 确保内容不超出视口 */
+            overflow-x: auto;
+            /* 修复滚动显示问题 */
+            display: flex;
+            flex-direction: column;
+            /* 确保内容从顶部开始 */
+            justify-content: flex-start;
+            align-items: stretch;
+        }
+
+        .page-header {
+            background: var(--qoder-surface);
+            border: 1px solid var(--qoder-border);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 32px;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            /* 与登录页一致的阴影效果 */
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.4),
+                0 0 0 1px rgba(255, 255, 255, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+            /* 确保头部不变形 */
+            flex-shrink: 0;
+            /* 修复对齐问题 */
+            min-height: auto;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        
+        .page-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--qoder-primary), transparent);
+        }
+
+        .page-title {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .page-title h2 {
+            color: var(--qoder-text);
+            font-size: 28px;
+            font-weight: 600;
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+
+        .page-title .icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, var(--qoder-primary), var(--qoder-success));
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            /* 与登录页一致的阴影效果 */
+            box-shadow: 0 8px 32px var(--shadow-primary);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .page-title .icon::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(45deg, transparent, rgba(255,255,255,0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        .page-subtitle {
+            color: var(--qoder-text-secondary);
+            font-size: 15px;
+            margin: 8px 0 0 64px;
+            font-weight: 400;
+            line-height: 1.5;
+        }
+
+        .btn-refresh,
+        .btn-control {
+            background: var(--qoder-bg);
+            border: 1px solid var(--qoder-border);
+            color: var(--qoder-text);
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+        
+        .btn-refresh:hover,
+        .btn-control:hover {
+            background: var(--qoder-primary);
+            border-color: var(--qoder-primary);
+            color: white;
+        }
+        
+        .btn-control.active {
+            background: var(--qoder-primary);
+            border-color: var(--qoder-primary);
+            color: white;
+        }
+        
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .stats-card {
+            background: linear-gradient(135deg, var(--qoder-surface), rgba(51, 65, 85, 0.6));
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--qoder-border);
+            border-radius: 20px;
+            padding: 28px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .stats-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary-green), var(--accent-green), var(--light-green));
+            background-size: 200% 100%;
+            animation: gradientFlow 4s ease-in-out infinite;
+        }
+        
+        .stats-card::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: radial-gradient(circle at 50% 0%, var(--glow-green), transparent 70%);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        
+        @keyframes gradientFlow {
+            0%, 100% { background-position: 200% 0; }
+            50% { background-position: -200% 0; }
+        }
+
+        .stats-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            box-shadow: 
+                0 25px 50px rgba(0, 0, 0, 0.2),
+                0 12px 32px var(--shadow-green),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border-color: var(--primary-green);
+        }
+        
+        .stats-card:hover::after {
+            opacity: 0.1;
+        }
+
+        .metric-value {
+            font-size: 32px;
+            font-weight: 600;
+            color: var(--qoder-text);
+            margin: 0;
+            line-height: 1;
+            letter-spacing: -0.5px;
+        }
+        
+        .metric-label {
+            color: var(--qoder-text-secondary);
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .metric-icon {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .metric-value.success { 
+            color: var(--qoder-success);
+        }
+        .metric-value.info { 
+            color: var(--qoder-primary);
+        }
+        .metric-value.warning { 
+            color: var(--qoder-warning);
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 400px;
+            gap: 32px;
+            margin-bottom: 32px;
+            /* 修复网格布局问题 */
+            width: 100%;
+            align-items: start;
+            /* 确保网格不超出容器 */
+            min-height: auto;
+        }
+
+        .chart-card {
+            background: var(--qoder-surface);
+            border: 1px solid var(--qoder-border);
+            border-radius: 16px;
+            padding: 32px;
+            /* 与登录页一致的阴影效果 */
+            box-shadow: 
+                0 20px 40px rgba(0, 0, 0, 0.4),
+                0 0 0 1px rgba(255, 255, 255, 0.05),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+            /* 修复图表卡片布局 */
+            width: 100%;
+            min-height: auto;
+            display: flex;
+            flex-direction: column;
+            /* 确保内容不超出 */
+            box-sizing: border-box;
+        }
+        
+        .chart-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--qoder-primary), transparent);
+        }
+
+        .chart-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--qoder-border);
+        }
+
+        .chart-title {
+            color: var(--qoder-text);
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0;
+            letter-spacing: -0.3px;
+        }
+
+        .chart-icon {
+            width: 32px;
+            height: 32px;
+            background: var(--qoder-primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 14px;
+        }
+
+        /* 页面切换动画优化 */
+        .page-content {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px) scale(0.98);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            /* 修复内容区域布局 */
+            width: 100%;
+            min-height: calc(100vh - 120px);
+            /* 确保内容从顶部开始显示 */
+            position: relative;
+            top: 0;
+            left: 0;
+        }
+
+        .page-content.active {
+            display: block;
+            opacity: 1;
+            transform: translateY(0) scale(1);
+        }
+
+        .controls {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            flex-wrap: wrap;
+            /* 修复控制区域对齐 */
+            justify-content: flex-end;
+            flex-shrink: 0;
+            margin-top: 16px;
+        }
+
+        .btn-control {
+            background: var(--qoder-bg);
+            border: 1px solid var(--qoder-border);
+            color: var(--qoder-text);
+            padding: 12px 18px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+        
+        .btn-control:hover {
+            background: var(--qoder-primary);
+            border-color: var(--qoder-primary);
+            color: white;
+        }
+
+        .chart-title-group {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .chart-info {
+            color: var(--qoder-text-secondary);
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            font-weight: 500;
+        }
+
+        .info-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .legend-odd { 
+            background: var(--qoder-success);
+        }
+        .legend-even { 
+            background: var(--qoder-primary);
+        }
+
+        .block-info-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .block-info-table td {
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--qoder-border);
+            color: var(--qoder-text);
+            background: rgba(255, 255, 255, 0.02);
+            transition: background 0.2s ease;
+        }
+        
+        .block-info-table tr:hover td {
+            background: rgba(74, 222, 128, 0.05);
+        }
+
+        .block-info-table td:first-child {
+            color: var(--qoder-text-secondary);
+            font-weight: 600;
+            width: 140px;
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .block-info-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .block-hash {
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', monospace;
+            font-size: 12px;
+            background: var(--qoder-bg);
+            color: var(--qoder-primary);
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid var(--qoder-border);
+            word-break: break-all;
+            font-weight: 500;
+        }
+
+        .badge {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .badge.primary {
+            background: var(--qoder-primary);
+            color: white;
+            border-color: var(--qoder-primary);
+        }
+
+        .badge.success {
+            background: var(--qoder-success);
+            color: white;
+            border-color: var(--qoder-success);
+        }
+
+        .badge.info {
+            background: var(--qoder-primary);
+            color: white;
+            border-color: var(--qoder-primary);
+        }
+
+        /* 响应式设计优化 */
+        @media (max-width: 1200px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+                gap: 24px;
+            }
+            
+            .page-title h2 {
+                font-size: 24px;
+            }
+            
+            .main-content {
+                padding: 24px;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+                transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                box-shadow: none;
+            }
+            
+            .sidebar.mobile-open {
+                transform: translateX(0);
+                box-shadow: 4px 0 20px rgba(0, 0, 0, 0.5);
+            }
+
+            .main-content {
+                margin-left: 0;
+                padding: 20px 16px;
+                width: 100%;
+            }
+            
+            .page-header {
+                padding: 24px;
+                flex-direction: column;
+                gap: 16px;
+                align-items: flex-start;
+            }
+            
+            .page-title {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 12px;
+                width: 100%;
+            }
+            
+            .page-title h2 {
+                font-size: 20px;
+            }
+            
+            .page-subtitle {
+                margin: 0;
+            }
+
+            .content-grid {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            .stats-row {
+                grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+                gap: 16px;
+            }
+            
+            .stats-card {
+                padding: 20px;
+            }
+            
+            .metric-value {
+                font-size: 28px;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+                width: 100%;
+                margin-top: 20px;
+            }
+            
+            .btn-control,
+            .btn-refresh {
+                justify-content: center;
+                width: 100%;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .stats-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .page-header {
+                padding: 20px;
+            }
+            
+            .page-title .icon {
+                width: 40px;
+                height: 40px;
+                font-size: 18px;
+            }
+            
+            .page-title h2 {
+                font-size: 18px;
+            }
+            
+            .main-content {
+                padding: 16px 12px;
+            }
+        }
+        
+        /* 简化的动画效果 - 与登录页一致 */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .stats-card,
+        .chart-card {
+            animation: fadeInUp 0.4s ease-out;
+        }
+        
+        /* 加载状态 */
+        .loading {
+            position: relative;
+            pointer-events: none;
+        }
+        
+        .loading::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(2px);
+            -webkit-backdrop-filter: blur(2px);
+            border-radius: inherit;
+            z-index: 10;
+        }
+        
+        .loading::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 24px;
+            height: 24px;
+            margin: -12px 0 0 -12px;
+            border: 2px solid var(--qoder-border);
+            border-top: 2px solid var(--primary-green);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            z-index: 11;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* 新增样式 - 指标趋势 */
+        .metric-trend {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 8px;
+            font-size: 11px;
+            opacity: 0.8;
+        }
+        
+        /* 实时指示器 */
+        .real-time-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .pulse-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--qoder-success);
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+            box-shadow: 0 0 10px var(--qoder-success);
+        }
+        
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.5;
+                transform: scale(1.2);
+            }
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+        
+        /* 状态指示器 */
+        .status-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border: 1px solid var(--qoder-border);
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--qoder-text);
+        }
+        
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--qoder-danger);
+        }
+        
+        .status-dot.active {
+            background: var(--qoder-success);
+            box-shadow: 0 0 10px var(--qoder-success);
+            animation: pulse 2s infinite;
+        }
+        
+        /* 智能分析内容 */
+        .analysis-content {
+            padding: 20px;
+        }
+        
+        .analysis-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            margin-bottom: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .analysis-item:hover {
+            background: rgba(74, 222, 128, 0.05);
+            border-color: rgba(74, 222, 128, 0.2);
+            transform: translateX(4px);
+        }
+        
+        .analysis-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .analysis-text {
+            flex: 1;
+        }
+        
+        .analysis-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--qoder-text);
+            margin-bottom: 4px;
+        }
+        
+        .analysis-desc {
+            font-size: 13px;
+            color: var(--qoder-text-secondary);
+            line-height: 1.4;
+        }
+        
+        /* 图表控制按钮 */
+        .chart-controls {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn-chart-control {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--qoder-border);
+            color: var(--qoder-text-secondary);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .btn-chart-control:hover {
+            background: rgba(74, 222, 128, 0.1);
+            border-color: var(--qoder-primary);
+            color: var(--qoder-text);
+        }
+        
+        .btn-chart-control.active {
+            background: linear-gradient(135deg, var(--qoder-primary), var(--qoder-primary-hover));
+            border-color: var(--qoder-primary);
+            color: white;
+            box-shadow: 0 4px 12px rgba(35, 134, 54, 0.3);
+        }
+        
+        /* 网络状态特殊样式 */
+        #networkStatus {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--qoder-success);
+        }
+        
+        #networkStatus.warning {
+            color: var(--qoder-warning);
+        }
+        
+        #networkStatus.error {
+            color: var(--qoder-danger);
+        }
+        
+        /* K线信息面板样式 */
+        .kline-info-panel {
+            display: flex;
+            gap: 20px;
+            padding: 16px 24px;
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 12px;
+            margin-bottom: 20px;
+            border: 1px solid var(--qoder-border);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+        
+        .kline-info-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            color: var(--qoder-text);
+            font-weight: 500;
+        }
+        
+        .kline-info-item i {
+            color: var(--qoder-primary);
+            width: 16px;
+            text-align: center;
+        }
+        
+        .kline-info-description {
+            flex: 1;
+            font-size: 13px;
+            color: var(--qoder-text-secondary);
+            font-style: italic;
+            padding-left: 24px;
+            border-left: 2px solid var(--qoder-border);
+            margin-left: 20px;
+        }
+        
+        /* 响应式设计 */
+        @media (max-width: 768px) {
+            .kline-info-panel {
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .kline-info-description {
+                padding-left: 16px;
+                margin-left: 0;
+                border-left: none;
+                border-top: 1px solid var(--qoder-border);
+                padding-top: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 侧边栏 -->
+    <nav class="sidebar">
+        <div class="sidebar-header">
+            <h4>
+                <div class="logo">
+                    <i class="fas fa-cube"></i>
+                </div>
+                Point-Tron
+            </h4>
+        </div>
+        
+        <div class="sidebar-nav">
+            <div class="nav-item">
+                <a class="nav-link active" href="#" onclick="showPage('dashboard', this); return false;">
+                    <i class="fas fa-tachometer-alt"></i> 智能仪表盘
+                </a>
+            </div>
+            <div class="nav-item">
+                <a class="nav-link" href="#" onclick="showPage('realtime', this); return false;">
+                    <i class="fas fa-chart-line"></i> 实时监控
+                </a>
+            </div>
+            <div class="nav-item">
+                <a class="nav-link" href="#" onclick="showPage('blocks', this); return false;">
+                    <i class="fas fa-cubes"></i> 区块打点
+                </a>
+            </div>
+            <div class="nav-item">
+                <a class="nav-link" href="#" onclick="showPage('analytics', this); return false;">
+                    <i class="fas fa-chart-bar"></i> 数据分析
+                </a>
+            </div>
+            <div class="nav-item">
+                <a class="nav-link" href="#" onclick="showPage('history', this); return false;">
+                    <i class="fas fa-history"></i> 历史记录
+                </a>
+            </div>
+            <div class="nav-item">
+                <a class="nav-link" href="#" onclick="showPage('config', this); return false;">
+                    <i class="fas fa-cogs"></i> 系统设置
+                </a>
+            </div>
+        </div>
+        
+        <div class="sidebar-footer">
+            <button class="btn-logout" onclick="logout()">
+                <i class="fas fa-sign-out-alt"></i> 退出登录
+            </button>
+        </div>
+    </nav>
+
+    <!-- 主内容区 -->
+    <div class="main-content">
+        <!-- 智能仪表盘页面 - 优化后的第一个菜单 -->
+        <div id="dashboard-page" class="page-content active">
+            <!-- 页面标题 -->
+            <div class="page-header">
+                <div>
+                    <div class="page-title">
+                        <div class="icon">
+                            <i class="fas fa-tachometer-alt"></i>
+                        </div>
+                        <h2>TRON 智能监控仪表盘</h2>
+                    </div>
+                    <div class="page-subtitle">
+                        全方位监控波场网络状态，智能分析区块数据趋势，实时掌控网络动态
+                    </div>
+                </div>
+                <div class="controls">
+                    <button class="btn-control" onclick="refreshDashboardData()">
+                        <i class="fas fa-sync-alt"></i> 立即刷新
+                    </button>
+                    <button class="btn-control" onclick="toggleDashboardAutoRefresh()" id="dashboardAutoRefreshBtn">
+                        <i class="fas fa-pause"></i> 暂停自动刷新
+                    </button>
+                    <button class="btn-control" onclick="exportData()">
+                        <i class="fas fa-download"></i> 导出数据
+                    </button>
+                </div>
+            </div>
+
+            <!-- 核心指标卡片 -->
+            <div class="stats-row">
+                <div class="stats-card">
+                    <div class="metric-icon" style="background: var(--qoder-primary);">
+                        <i class="fas fa-network-wired"></i>
+                    </div>
+                    <div class="metric-value" id="networkStatus">正常</div>
+                    <div class="metric-label">网络状态</div>
+                    <div class="metric-trend" id="networkTrend">
+                        <i class="fas fa-arrow-up" style="color: var(--qoder-success);"></i>
+                        <span style="color: var(--qoder-success); font-size: 12px;">稳定运行</span>
+                    </div>
+                </div>
+                <div class="stats-card">
+                    <div class="metric-icon" style="background: var(--qoder-success);">
+                        <i class="fas fa-cubes"></i>
+                    </div>
+                    <div class="metric-value" id="todayTotal">-</div>
+                    <div class="metric-label">今日区块总数</div>
+                    <div class="metric-trend" id="todayTotalTrend">
+                        <i class="fas fa-chart-line" style="color: var(--qoder-primary);"></i>
+                        <span style="color: var(--qoder-text-secondary); font-size: 12px;">实时统计</span>
+                    </div>
+                </div>
+                <div class="stats-card">
+                    <div class="metric-icon" style="background: var(--qoder-success);">
+                        <i class="fas fa-percentage"></i>
+                    </div>
+                    <div class="metric-value success" id="oddRate">-</div>
+                    <div class="metric-label">单数区块比例</div>
+                    <div class="metric-trend" id="oddRateTrend">
+                        <i class="fas fa-balance-scale" style="color: var(--qoder-warning);"></i>
+                        <span style="color: var(--qoder-text-secondary); font-size: 12px;">随机性分析</span>
+                    </div>
+                </div>
+                <div class="stats-card">
+                    <div class="metric-icon" style="background: var(--qoder-warning);">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="metric-value warning" id="avgBlockTime">-</div>
+                    <div class="metric-label">平均出块时间(秒)</div>
+                    <div class="metric-trend" id="blockTimeTrend">
+                        <i class="fas fa-stopwatch" style="color: var(--qoder-info);"></i>
+                        <span style="color: var(--qoder-text-secondary); font-size: 12px;">性能指标</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 实时监控面板 -->
+            <div class="content-grid">
+                <!-- 最新区块信息 -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title-group">
+                            <div class="chart-icon">
+                                <i class="fas fa-cube"></i>
+                            </div>
+                            <h5 class="chart-title">最新区块详情</h5>
+                        </div>
+                        <div class="real-time-indicator">
+                            <div class="pulse-dot"></div>
+                            <span style="color: var(--qoder-success); font-size: 12px; font-weight: 600;">实时更新</span>
+                        </div>
+                    </div>
+                    <table class="block-info-table">
+                        <tr>
+                            <td><i class="fas fa-hashtag" style="margin-right: 8px; color: var(--qoder-primary);"></i>区块号:</td>
+                            <td id="currentBlockNumber">-</td>
+                        </tr>
+                        <tr>
+                            <td><i class="fas fa-fingerprint" style="margin-right: 8px; color: var(--qoder-primary);"></i>区块哈希:</td>
+                            <td><code class="block-hash" id="currentBlockHash">-</code></td>
+                        </tr>
+                        <tr>
+                            <td><i class="fas fa-sort-numeric-up" style="margin-right: 8px; color: var(--qoder-primary);"></i>末位数字:</td>
+                            <td><span id="currentLastDigit" class="badge primary">-</span></td>
+                        </tr>
+                        <tr>
+                            <td><i class="fas fa-divide" style="margin-right: 8px; color: var(--qoder-primary);"></i>单双性:</td>
+                            <td><span id="currentIsOdd" class="badge">-</span></td>
+                        </tr>
+                        <tr>
+                            <td><i class="fas fa-clock" style="margin-right: 8px; color: var(--qoder-primary);"></i>区块时间:</td>
+                            <td id="currentBlockTime">-</td>
+                        </tr>
+                        <tr>
+                            <td><i class="fas fa-weight-hanging" style="margin-right: 8px; color: var(--qoder-primary);"></i>区块大小:</td>
+                            <td id="currentBlockSize">- KB</td>
+                        </tr>
+                        <tr>
+                            <td><i class="fas fa-exchange-alt" style="margin-right: 8px; color: var(--qoder-primary);"></i>交易数量:</td>
+                            <td id="currentTxCount">-</td>
+                        </tr>
+                    </table>
+                </div>
+                
+                <!-- 智能分析面板 -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title-group">
+                            <div class="chart-icon">
+                                <i class="fas fa-brain"></i>
+                            </div>
+                            <h5 class="chart-title">智能分析</h5>
+                        </div>
+                    </div>
+                    <div class="analysis-content">
+                        <div class="analysis-item">
+                            <div class="analysis-icon" style="background: var(--qoder-success);">
+                                <i class="fas fa-chart-pie"></i>
+                            </div>
+                            <div class="analysis-text">
+                                <div class="analysis-title">分布均衡性</div>
+                                <div class="analysis-desc" id="distributionAnalysis">分析中...</div>
+                            </div>
+                        </div>
+                        <div class="analysis-item">
+                            <div class="analysis-icon" style="background: var(--qoder-primary);">
+                                <i class="fas fa-trending-up"></i>
+                            </div>
+                            <div class="analysis-text">
+                                <div class="analysis-title">趋势预测</div>
+                                <div class="analysis-desc" id="trendAnalysis">分析中...</div>
+                            </div>
+                        </div>
+                        <div class="analysis-item">
+                            <div class="analysis-icon" style="background: var(--qoder-warning);">
+                                <i class="fas fa-shield-alt"></i>
+                            </div>
+                            <div class="analysis-text">
+                                <div class="analysis-title">网络健康度</div>
+                                <div class="analysis-desc" id="healthAnalysis">分析中...</div>
+                            </div>
+                        </div>
+                        <div class="analysis-item">
+                            <div class="analysis-icon" style="background: var(--qoder-primary);">
+                                <i class="fas fa-lightbulb"></i>
+                            </div>
+                            <div class="analysis-text">
+                                <div class="analysis-title">智能建议</div>
+                                <div class="analysis-desc" id="suggestions">生成中...</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 数据可视化图表 -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div class="chart-title-group">
+                        <div class="chart-icon">
+                            <i class="fas fa-chart-area"></i>
+                        </div>
+                        <h5 class="chart-title">24小时数据趋势</h5>
+                    </div>
+                    <div class="chart-controls">
+                        <button class="btn-chart-control active" onclick="switchChartView('trend')">
+                            <i class="fas fa-chart-line"></i> 趋势图
+                        </button>
+                        <button class="btn-chart-control" onclick="switchChartView('distribution')">
+                            <i class="fas fa-chart-pie"></i> 分布图
+                        </button>
+                        <button class="btn-chart-control" onclick="switchChartView('heatmap')">
+                            <i class="fas fa-th"></i> 热力图
+                        </button>
+                    </div>
+                </div>
+                <div id="mainChart" style="height: 400px;"></div>
+            </div>
+        </div>
+
+        <!-- 实时监控页面 -->
+        <div id="realtime-page" class="page-content">
+            <div class="page-header">
+                <div>
+                    <div class="page-title">
+                        <div class="icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h2>实时监控中心</h2>
+                    </div>
+                    <div class="page-subtitle">
+                        毫秒级实时监控波场网络状态，捕获每一个区块的生成瞬间
+                    </div>
+                </div>
+                <div class="controls">
+                    <div class="status-indicator">
+                        <div class="status-dot active"></div>
+                        <span>实时连接</span>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 实时数据流 -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div class="chart-icon">
+                        <i class="fas fa-wave-square"></i>
+                    </div>
+                    <h5 class="chart-title">实时数据流</h5>
+                </div>
+                <div id="realtimeChart" style="height: 400px;"></div>
+            </div>
+        </div>
+
+        <!-- 数据分析页面 -->
+        <div id="analytics-page" class="page-content">
+            <div class="page-header">
+                <div>
+                    <div class="page-title">
+                        <div class="icon">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <h2>K线数据分析</h2>
+                    </div>
+                    <div class="page-subtitle">
+                        专门的1分钟K线图表分析：每个K线蜡烛由20个3秒间隔的区块记录生成
+                    </div>
+                </div>
+                <div class="controls">
+                    <select class="btn-control" id="klineLimit" onchange="changeKlineLimit()">
+                        <option value="50">50个1分钟K线</option>
+                        <option value="100" selected>100个1分钟K线</option>
+                        <option value="200">200个1分钟K线</option>
+                        <option value="500">500个1分钟K线</option>
+                    </select>
+                    <button class="btn-control" onclick="toggleKlineRealtime()" id="klineRealtimeBtn">
+                        <i class="fas fa-play"></i> 开启实时
+                    </button>
+                    <button class="btn-refresh" onclick="refreshKlineData()">
+                        <i class="fas fa-refresh"></i> 刷新数据
+                    </button>
+                </div>
+            </div>
+            
+            <!-- K线统计卡片 -->
+            <div class="stats-row">
+                <div class="stats-card">
+                    <div class="metric-icon" style="background: var(--qoder-primary);">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="metric-value" id="klineTotalChange">-</div>
+                    <div class="metric-label">总价格变化</div>
+                </div>
+                <div class="stats-card">
+                    <div class="metric-icon" style="background: var(--qoder-success);">
+                        <i class="fas fa-arrow-up"></i>
+                    </div>
+                    <div class="metric-value success" id="klineMaxGain">-</div>
+                    <div class="metric-label">最大涨幅</div>
+                </div>
+                <div class="stats-card">
+                    <div class="metric-icon" style="background: var(--qoder-danger);">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    <div class="metric-value" style="color: var(--qoder-danger);" id="klineMaxLoss">-</div>
+                    <div class="metric-label">最大跌幅</div>
+                </div>
+                <div class="stats-card">
+                    <div class="metric-icon" style="background: var(--qoder-warning);">
+                        <i class="fas fa-balance-scale"></i>
+                    </div>
+                    <div class="metric-value warning" id="klineAvgVolume">-</div>
+                    <div class="metric-label">平均成交量</div>
+                </div>
+            </div>
+            
+            <!-- K线主图表 -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div class="chart-title-group">
+                        <div class="chart-icon">
+                            <i class="fas fa-chart-candlestick"></i>
+                        </div>
+                        <h5 class="chart-title">区块打点分数 K线图（1分钟周期）</h5>
+                    </div>
+                    <div class="chart-controls">
+                        <button class="btn-chart-control active" onclick="switchKlineChart('candlestick')" id="candlestickBtn">
+                            <i class="fas fa-chart-bar"></i> K线图
+                        </button>
+                        <button class="btn-chart-control" onclick="switchKlineChart('line')" id="lineBtn">
+                            <i class="fas fa-chart-line"></i> 线图
+                        </button>
+                        <button class="btn-chart-control" onclick="switchKlineChart('volume')" id="volumeBtn">
+                            <i class="fas fa-chart-area"></i> 成交量
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- K线信息显示区域 -->
+                <div id="klineInfo" class="kline-info-panel">
+                    <div class="kline-info-item">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>加载中...</span>
+                    </div>
+                </div>
+                
+                <div id="klineChart" style="height: 500px;"></div>
+            </div>
+            
+            <!-- 技术指标图表 -->
+            <div class="content-grid" style="grid-template-columns: 1fr 1fr; gap: 24px;">
+                <!-- 移动平均线图表 -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title-group">
+                            <div class="chart-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <h5 class="chart-title">移动平均线</h5>
+                        </div>
+                    </div>
+                    <div id="maChart" style="height: 300px;"></div>
+                </div>
+                
+                <!-- RSI指标图表 -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title-group">
+                            <div class="chart-icon">
+                                <i class="fas fa-wave-square"></i>
+                            </div>
+                            <h5 class="chart-title">RSI相对强弱指标</h5>
+                        </div>
+                    </div>
+                    <div id="rsiChart" style="height: 300px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 区块打点页面 -->
+        <div id="blocks-page" class="page-content">
+            <!-- 页面标题 -->
+            <div class="page-header">
+                <div>
+                    <div class="page-title">
+                        <div class="icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h2>区块打点图</h2>
+                    </div>
+                    <div class="page-subtitle">
+                        累积计分打点系统：双数+1分，单数-1分，从0开始累积
+                    </div>
+                </div>
+                <div class="controls">
+                    <select class="btn-control" id="timeRangeSelect" onchange="changeTimeRange()">
+                        <option value="1day">1日</option>
+                        <option value="1week">1周</option>
+                        <option value="1month">1月</option>
+                    </select>
+                    <button class="btn-control" onclick="toggleAutoRefresh()" id="autoRefreshBtn">
+                        <i class="fas fa-pause"></i> 暂停自动刷新
+                    </button>
+                    <button class="btn-refresh" onclick="refreshBlocksData()">
+                        <i class="fas fa-refresh"></i> 刷新数据
+                    </button>
+                </div>
+            </div>
+
+            <!-- 打点统计卡片 -->
+            <div class="stats-row">
+                <div class="stats-card">
+                    <div class="metric-icon" style="background: var(--qoder-primary);">
+                        <i class="fas fa-calculator"></i>
+                    </div>
+                    <div class="metric-value" id="currentScore">-</div>
+                    <div class="metric-label">当前累积分数</div>
+                </div>
+                <div class="stats-card">
+                    <div class="metric-icon" style="background: var(--qoder-success);">
+                        <i class="fas fa-arrow-up"></i>
+                    </div>
+                    <div class="metric-value success" id="maxScore">-</div>
+                    <div class="metric-label">期间最高分</div>
+                </div>
+                <div class="stats-card">
+                    <div class="metric-icon" style="background: var(--qoder-danger);">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    <div class="metric-value" style="color: var(--qoder-danger);" id="minScore">-</div>
+                    <div class="metric-label">期间最低分</div>
+                </div>
+                <div class="stats-card">
+                    <div class="metric-icon" style="background: var(--qoder-warning);">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="metric-value warning" id="totalChange">-</div>
+                    <div class="metric-label">期间分数变化</div>
+                </div>
+            </div>
+
+            <!-- 区块打点图 -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div class="chart-title-group">
+                        <div class="chart-icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h5 class="chart-title">累积计分趋势图</h5>
+                    </div>
+                    <div class="chart-info">
+                        <div class="info-item">
+                            <div class="legend-dot legend-odd"></div>
+                            <span>单数(-1分)</span>
+                        </div>
+                        <div class="info-item">
+                            <div class="legend-dot legend-even"></div>
+                            <span>双数(+1分)</span>
+                        </div>
+                        <div class="info-item">
+                            <i class="fas fa-info-circle"></i>
+                            <span id="chartInfo">显示最新数据</span>
+                        </div>
+                    </div>
+                </div>
+                <div id="blocksChart" style="height: 500px;"></div>
+            </div>
+        </div>
+
+        <!-- 历史统计页面 -->
+        <div id="history-page" class="page-content">
+            <div class="page-header">
+                <div>
+                    <div class="page-title">
+                        <div class="icon">
+                            <i class="fas fa-history"></i>
+                        </div>
+                        <h2>历史统计</h2>
+                    </div>
+                    <div class="page-subtitle">
+                        查看历史区块的统计数据和趋势分析
+                    </div>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div class="chart-icon">
+                        <i class="fas fa-history"></i>
+                    </div>
+                    <h5 class="chart-title">历史数据</h5>
+                </div>
+                <div style="padding: 40px; text-align: center; color: var(--qoder-text-secondary);">
+                    <i class="fas fa-clock" style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;"></i>
+                    <div>历史统计功能开发中...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 系统配置页面 -->
+        <div id="config-page" class="page-content">
+            <div class="page-header">
+                <div>
+                    <div class="page-title">
+                        <div class="icon">
+                            <i class="fas fa-cog"></i>
+                        </div>
+                        <h2>系统配置</h2>
+                    </div>
+                    <div class="page-subtitle">
+                        系统参数配置和设置管理
+                    </div>
+                </div>
+            </div>
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div class="chart-icon">
+                        <i class="fas fa-cog"></i>
+                    </div>
+                    <h5 class="chart-title">系统设置</h5>
+                </div>
+                <div style="padding: 40px; text-align: center; color: var(--qoder-text-secondary);">
+                    <i class="fas fa-tools" style="font-size: 48px; margin-bottom: 16px; opacity: 0.5;"></i>
+                    <div>系统配置功能开发中...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- K线分析页面 -->
+        <div id="kline-page" class="page-content">
+            <div class="page-header">
+                <div>
+                    <div class="page-title">
+                        <div class="icon">
+                            <i class="fas fa-chart-line"></i>
+                        </div>
+                        <h2>K线分析</h2>
+                    </div>
+                    <div class="page-subtitle">
+                        基于区块打点数据的K线技术分析，每个1分钟K线由20条3秒记录生成
+                    </div>
+                </div>
+                <div class="controls">
+                    <select id="klinePeriod" class="form-select" style="width: auto; margin-right: 10px;" onchange="updateKlinePeriod()">
+                        <option value="1m" selected>1分钟</option>
+                        <option value="5m">5分钟</option>
+                        <option value="15m">15分钟</option>
+                        <option value="1h">1小时</option>
+                    </select>
+                    <select id="klineLimit" class="form-select" style="width: auto; margin-right: 10px;" onchange="updateKlineLimit()">
+                        <option value="50">50条</option>
+                        <option value="100" selected>100条</option>
+                        <option value="200">200条</option>
+                        <option value="500">500条</option>
+                    </select>
+                    <button class="btn-control" onclick="refreshKlineData()">
+                        <i class="fas fa-sync-alt"></i> 刷新数据
+                    </button>
+                    <button class="btn-control" onclick="toggleKlineRealtime()" id="klineRealtimeBtn">
+                        <i class="fas fa-play"></i> 开启实时
+                    </button>
+                    <button class="btn-control" onclick="exportKlineData()">
+                        <i class="fas fa-download"></i> 导出数据
+                    </button>
+                </div>
+            </div>
+
+            <!-- K线统计卡片 -->
+            <div class="stats-row">
+                <div class="stats-card">
+                    <div class="metric-icon" style="background: var(--qoder-primary);">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <div class="metric-value" id="klineTotalChange">-</div>
+                    <div class="metric-label">总变化</div>
+                    <div class="metric-trend" id="klineTotalChangeTrend">
+                        <i class="fas fa-calculator" style="color: var(--qoder-info);"></i>
+                        <span style="color: var(--qoder-text-secondary); font-size: 12px;">累积分数变化</span>
+                    </div>
+                </div>
+                <div class="stats-card">
+                    <div class="metric-icon" style="background: var(--qoder-success);">
+                        <i class="fas fa-arrow-up"></i>
+                    </div>
+                    <div class="metric-value" id="klineMaxGain">-</div>
+                    <div class="metric-label">最大涨幅</div>
+                    <div class="metric-trend" id="klinePositiveCount">
+                        <span style="color: var(--qoder-success); font-size: 12px;" id="klinePositiveCountText">上涨周期: 0</span>
+                    </div>
+                </div>
+                <div class="stats-card">
+                    <div class="metric-icon" style="background: var(--qoder-danger);">
+                        <i class="fas fa-arrow-down"></i>
+                    </div>
+                    <div class="metric-value" id="klineMaxLoss">-</div>
+                    <div class="metric-label">最大跌幅</div>
+                    <div class="metric-trend" id="klineNegativeCount">
+                        <span style="color: var(--qoder-danger); font-size: 12px;" id="klineNegativeCountText">下跌周期: 0</span>
+                    </div>
+                </div>
+                <div class="stats-card">
+                    <div class="metric-icon" style="background: var(--qoder-warning);">
+                        <i class="fas fa-percentage"></i>
+                    </div>
+                    <div class="metric-value" id="klineWinRate">-</div>
+                    <div class="metric-label">胜率</div>
+                    <div class="metric-trend" id="klineVolatility">
+                        <span style="color: var(--qoder-warning); font-size: 12px;" id="klineVolatilityText">波动率: 0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- K线图表区域 -->
+            <div class="content-grid">
+                <!-- 主K线图表 -->
+                <div class="chart-card" style="grid-column: 1 / -1;">
+                    <div class="chart-header">
+                        <div class="chart-title-group">
+                            <div class="chart-icon">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                            <h5 class="chart-title">1分钟K线图</h5>
+                        </div>
+                        <div class="chart-controls">
+                            <button class="btn btn-sm btn-outline-secondary" onclick="toggleKlineChartType()" id="klineChartTypeBtn">
+                                <i class="fas fa-chart-area"></i> 线图
+                            </button>
+                            <div class="real-time-indicator" style="display: none;" id="klineRealtimeIndicator">
+                                <div class="pulse-dot"></div>
+                                <span style="color: var(--qoder-success); font-size: 12px; font-weight: 600;">实时更新</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="klineChart" style="height: 400px;"></div>
+                </div>
+
+                <!-- 移动平均线图表 -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title-group">
+                            <div class="chart-icon">
+                                <i class="fas fa-chart-area"></i>
+                            </div>
+                            <h5 class="chart-title">移动平均线</h5>
+                        </div>
+                    </div>
+                    <div id="maChart" style="height: 300px;"></div>
+                </div>
+
+                <!-- RSI指标图表 -->
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title-group">
+                            <div class="chart-icon">
+                                <i class="fas fa-wave-square"></i>
+                            </div>
+                            <h5 class="chart-title">RSI指标</h5>
+                        </div>
+                    </div>
+                    <div id="rsiChart" style="height: 300px;"></div>
+                </div>
+            </div>
+
+            <!-- K线数据表格 -->
+            <div class="chart-card">
+                <div class="chart-header">
+                    <div class="chart-title-group">
+                        <div class="chart-icon">
+                            <i class="fas fa-table"></i>
+                        </div>
+                        <h5 class="chart-title">最新K线数据</h5>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-dark table-striped" id="klineDataTable">
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-clock"></i> 时间</th>
+                                <th><i class="fas fa-play"></i> 开盘</th>
+                                <th><i class="fas fa-arrow-up"></i> 最高</th>
+                                <th><i class="fas fa-arrow-down"></i> 最低</th>
+                                <th><i class="fas fa-stop"></i> 收盘</th>
+                                <th><i class="fas fa-chart-bar"></i> 成交量</th>
+                                <th><i class="fas fa-calculator"></i> 涨跌幅</th>
+                            </tr>
+                        </thead>
+                        <tbody id="klineDataTableBody">
+                            <tr>
+                                <td colspan="7" style="text-align: center; color: var(--qoder-text-secondary);">
+                                    <i class="fas fa-spinner fa-spin"></i> 加载中...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.0/dist/echarts.min.js"></script>
+    <script>
+        // 检查登录状态
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '/login';
+        }
+
+        // API请求封装
+        async function apiRequest(url, options = {}) {
+            const defaultOptions = {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            };
+            
+            const response = await fetch(url, { ...defaultOptions, ...options });
+            const result = await response.json();
+            
+            if (!result.success) {
+                throw new Error(result.error || '请求失败');
+            }
+            
+            return result.data;
+        }
+
+        // 全局变量
+        let autoRefreshInterval;
+        let dashboardAutoRefreshInterval;
+        let klineAutoRefreshInterval;
+        let isAutoRefreshing = true;
+        let isDashboardAutoRefreshing = true;
+        let isKlineRealtime = false;
+        let currentPage = 'dashboard';
+        let currentTimeRange = '1day';
+        let currentChartView = 'trend';
+        let currentKlineLimit = 100; // 默认生成100个1分钟K线
+        let currentKlineChartType = 'candlestick';
+        const blockLimit = 200;
+        
+        // WebSocket连接
+        let websocket = null;
+        let wsConnected = false;
+        
+        // 初始化WebSocket连接
+        function initWebSocket() {
+            try {
+                const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+                const wsUrl = `${protocol}//${window.location.host}/ws`;
+                
+                websocket = new WebSocket(wsUrl);
+                
+                websocket.onopen = function(event) {
+                    console.log('🔌 WebSocket连接已建立');
+                    wsConnected = true;
+                    
+                    // 订阅实时更新（修正消息格式）
+                    websocket.send(JSON.stringify({
+                        type: 'subscribe',
+                        channel: 'kline'  // 使用channel字段而不是data
+                    }));
+                };
+                
+                websocket.onmessage = function(event) {
+                    try {
+                        const message = JSON.parse(event.data);
+                        handleWebSocketMessage(message);
+                    } catch (error) {
+                        console.error('解析WebSocket消息失败:', error);
+                    }
+                };
+                
+                websocket.onclose = function(event) {
+                    console.log('🔌 WebSocket连接已关闭');
+                    wsConnected = false;
+                    
+                    // 5秒后重新连接
+                    setTimeout(initWebSocket, 5000);
+                };
+                
+                websocket.onerror = function(error) {
+                    console.error('WebSocket连接错误:', error);
+                    wsConnected = false;
+                };
+                
+            } catch (error) {
+                console.error('初始化WebSocket失败:', error);
+            }
+        }
+        
+        // 处理WebSocket消息
+        function handleWebSocketMessage(message) {
+            switch (message.type) {
+                case 'kline_update':
+                    console.log('📈 收到K线更新:', message.data);
+                    // 如果当前在K线页面且开启了实时模式，刷新数据
+                    if (currentPage === 'analytics' && isKlineRealtime) {
+                        refreshKlineData();
+                    }
+                    break;
+                    
+                case 'block_update':
+                    console.log('📦 收到区块更新:', message.data);
+                    // 如果当前在相关页面，刷新数据
+                    if (currentPage === 'dashboard') {
+                        refreshDashboardData();
+                    } else if (currentPage === 'blocks') {
+                        refreshBlocksData();
+                    }
+                    break;
+                    
+                default:
+                    console.log('收到未知消息类型:', message.type);
+            }
+        }
+
+        // 初始化图表
+        const mainChart = echarts.init(document.getElementById('mainChart'));
+        let realtimeChart;
+        let blocksChart;
+        let klineChart;
+        let maChart;
+        let rsiChart;
+        
+        // 智能分析相关变量
+        let analysisData = {
+            distribution: { balance: 0, trend: 'stable' },
+            network: { health: 'excellent', performance: 95 },
+            suggestions: []
+        };
+
+        // 页面切换功能
+        function showPage(pageId, element) {
+            // 更新菜单状态
+            document.querySelectorAll('.nav-link').forEach(link => {
+                link.classList.remove('active');
+            });
+            
+            // 如果传入了element参数，直接使用，否则查找对应的菜单项
+            if (element) {
+                element.classList.add('active');
+            } else {
+                // 根据pageId查找对应的菜单项
+                const menuLinks = {
+                    'dashboard': '智能仪表盘',
+                    'realtime': '实时监控',
+                    'blocks': '区块打点',
+                    'analytics': '数据分析',
+                    'history': '历史记录',
+                    'config': '系统设置'
+                };
+                
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    if (link.textContent.includes(menuLinks[pageId])) {
+                        link.classList.add('active');
+                    }
+                });
+            }
+            
+            // 隐藏所有页面
+            document.querySelectorAll('.page-content').forEach(page => {
+                page.classList.remove('active');
+            });
+            
+            // 显示目标页面
+            const targetPage = document.getElementById(pageId + '-page');
+            if (targetPage) {
+                setTimeout(() => {
+                    targetPage.classList.add('active');
+                }, 50);
+            }
+            
+            currentPage = pageId;
+            
+            // 清理之前的定时器
+            if (autoRefreshInterval) {
+                clearInterval(autoRefreshInterval);
+            }
+            if (dashboardAutoRefreshInterval) {
+                clearInterval(dashboardAutoRefreshInterval);
+            }
+            if (klineAutoRefreshInterval) {
+                clearInterval(klineAutoRefreshInterval);
+            }
+            
+            // 根据页面初始化相应功能
+            switch (pageId) {
+                case 'dashboard':
+                    initDashboard();
+                    break;
+                case 'realtime':
+                    initRealtimePage();
+                    break;
+                case 'blocks':
+                    initBlocksPage();
+                    break;
+                case 'analytics':
+                    initAnalyticsPage();
+                    break;
+                case 'history':
+                    // 历史页面暂无自动刷新
+                    break;
+                case 'config':
+                    // 配置页面暂无自动刷新
+                    break;
+            }
+        }
+        
+        // 初始化仪表盘
+        function initDashboard() {
+            refreshDashboardData();
+            // 仪表盘自动刷新
+            isDashboardAutoRefreshing = true;
+            dashboardAutoRefreshInterval = setInterval(refreshDashboardData, 30000);
+            updateDashboardAutoRefreshButton();
+        }
+        
+        // 初始化实时监控页面
+        function initRealtimePage() {
+            if (!realtimeChart) {
+                const chartContainer = document.getElementById('realtimeChart');
+                if (chartContainer) {
+                    realtimeChart = echarts.init(chartContainer);
+                    console.log('实时监控图表初始化完成');
+                }
+            }
+            initRealtimeChart();
+            // 实时页面高频率刷新
+        }
+        
+        // 初始化数据分析页面
+        function initAnalyticsPage() {
+            initKlineCharts();
+            refreshKlineData();
+            // 如果开启了实时模式，开始自动刷新
+            if (isKlineRealtime) {
+                klineAutoRefreshInterval = setInterval(refreshKlineData, 30000);
+            }
+        }
+        // 初始化区块页面  
+        function initBlocksPage() {
+            console.log('初始化区块打点页面...');
+            if (!blocksChart) {
+                const chartContainer = document.getElementById('blocksChart');
+                if (chartContainer) {
+                    blocksChart = echarts.init(chartContainer);
+                    console.log('区块打点图表初始化完成');
+                } else {
+                    console.error('找不到区块打点图表容器 #blocksChart');
+                    return;
+                }
+            }
+            
+            // 确保图表容器已经可见，然后调整大小
+            setTimeout(() => {
+                if (blocksChart) {
+                    blocksChart.resize();
+                    console.log('图表容器大小已调整');
+                }
+                refreshBlocksData();
+            }, 200);
+            
+            // 区块打点自动刷新
+            isAutoRefreshing = true;
+            autoRefreshInterval = setInterval(refreshBlocksData, 10000);
+            updateAutoRefreshButton();
+        }
+
+        // 仪表盘数据刷新
+        async function refreshDashboardData() {
+            try {
+                console.log('正在获取仪表盘数据...');
+                const stats = await apiRequest('/api/blocks/stats');
+                console.log('获取到的数据:', stats);
+                updateDashboard(stats);
+                updateIntelligentAnalysis(stats);
+            } catch (error) {
+                console.error('获取数据失败:', error);
+                // 显示错误信息
+                handleDashboardError();
+                
+                if (error.message && error.message.includes('token')) {
+                    localStorage.removeItem('token');
+                    window.location.href = '/login';
+                }
+            }
+        }
+        
+        // 处理仪表盘错误
+        function handleDashboardError() {
+            const errorElements = ['networkStatus', 'todayTotal', 'oddRate', 'avgBlockTime'];
+            errorElements.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    if (id === 'networkStatus') {
+                        element.textContent = '异常';
+                        element.className = 'metric-value error';
+                    } else {
+                        element.textContent = '获取失败';
+                    }
+                }
+            });
+        }
+        
+        // 更新智能分析
+        function updateIntelligentAnalysis(stats) {
+            // 分布均衡性分析
+            const oddRate = stats.todayTotal > 0 ? (stats.todayOdd / stats.todayTotal * 100) : 50;
+            const distributionBalance = Math.abs(50 - oddRate);
+            let distributionText = '';
+            
+            if (distributionBalance < 2) {
+                distributionText = '完美均衡，单双数分布非常理想';
+            } else if (distributionBalance < 5) {
+                distributionText = '较为均衡，分布在正常范围内';
+            } else if (distributionBalance < 10) {
+                distributionText = '轻微偏差，属于正常波动';
+            } else {
+                distributionText = '存在偏差，需要关注趋势';
+            }
+            
+            document.getElementById('distributionAnalysis').textContent = distributionText;
+            
+            // 趋势预测
+            const trendText = '基于历史数据，预计后续将继续保持随机分布';
+            document.getElementById('trendAnalysis').textContent = trendText;
+            
+            // 网络健康度
+            const healthText = '网络运行稳定，出块间隔正常，无异常情况';
+            document.getElementById('healthAnalysis').textContent = healthText;
+            
+            // 智能建议
+            let suggestions = '';
+            if (distributionBalance > 10) {
+                suggestions = '建议持续监控，关注分布是否回归均衡';
+            } else {
+                suggestions = '网络状态良好，可以继续保持当前监控频率';
+            }
+            document.getElementById('suggestions').textContent = suggestions;
+        }
+        
+        // 切换图表视图
+        function switchChartView(view) {
+            // 更新按钮状态
+            document.querySelectorAll('.btn-chart-control').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            event.target.classList.add('active');
+            
+            currentChartView = view;
+            
+            // 根据视图类型更新图表
+            switch (view) {
+                case 'trend':
+                    updateMainChart('trend');
+                    break;
+                case 'distribution':
+                    updateMainChart('distribution');
+                    break;
+                case 'heatmap':
+                    updateMainChart('heatmap');
+                    break;
+            }
+        }
+        
+        // 更新主图表
+        function updateMainChart(type, data = null) {
+            if (!mainChart) return;
+            
+            let option = {};
+            
+            switch (type) {
+                case 'trend':
+                    option = createTrendChartOption(data);
+                    break;
+                case 'distribution':
+                    option = createDistributionChartOption(data);
+                    break;
+                case 'heatmap':
+                    option = createHeatmapChartOption(data);
+                    break;
+            }
+            
+            mainChart.setOption(option, true);
+        }
+        
+        // 创建趋势图配置
+        function createTrendChartOption(data) {
+            // 准备24小时数据
+            const hours = Array.from({length: 24}, (_, i) => i.toString().padStart(2, '0') + ':00');
+            const oddData = new Array(24).fill(0);
+            const evenData = new Array(24).fill(0);
+            
+            // 如果有数据则填充
+            if (data && data.hourlyStats) {
+                data.hourlyStats.forEach(item => {
+                    const hour = parseInt(item.hour);
+                    if (hour >= 0 && hour < 24) {
+                        oddData[hour] = item.odd || 0;
+                        evenData[hour] = item.even || 0;
+                    }
+                });
+            }
+            
+            return {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis',
+                    backgroundColor: 'var(--qoder-surface)',
+                    borderColor: 'var(--qoder-border)',
+                    textStyle: {
+                        color: 'var(--qoder-text)'
+                    }
+                },
+                legend: {
+                    data: ['单数', '双数'],
+                    textStyle: {
+                        color: 'var(--qoder-text)'
+                    },
+                    top: 10
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '8%',
+                    top: '15%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'category',
+                    boundaryGap: false,
+                    data: hours,
+                    axisLine: {
+                        lineStyle: {
+                            color: 'var(--qoder-border)'
+                        }
+                    },
+                    axisLabel: {
+                        color: 'var(--qoder-text-secondary)',
+                        interval: 3
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLine: {
+                        lineStyle: {
+                            color: 'var(--qoder-border)'
+                        }
+                    },
+                    axisLabel: {
+                        color: 'var(--qoder-text-secondary)'
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: 'var(--qoder-border)',
+                            opacity: 0.3
+                        }
+                    }
+                },
+                series: [
+                    {
+                        name: '单数',
+                        type: 'line',
+                        smooth: true,
+                        data: oddData,
+                        lineStyle: {
+                            color: '#3fb950',
+                            width: 3
+                        },
+                        areaStyle: {
+                            color: {
+                                type: 'linear',
+                                x: 0,
+                                y: 0,
+                                x2: 0,
+                                y2: 1,
+                                colorStops: [{
+                                    offset: 0, color: 'rgba(63, 185, 80, 0.3)'
+                                }, {
+                                    offset: 1, color: 'rgba(63, 185, 80, 0.05)'
+                                }]
+                            }
+                        }
+                    },
+                    {
+                        name: '双数',
+                        type: 'line',
+                        smooth: true,
+                        data: evenData,
+                        lineStyle: {
+                            color: '#238636',
+                            width: 3
+                        },
+                        areaStyle: {
+                            color: {
+                                type: 'linear',
+                                x: 0,
+                                y: 0,
+                                x2: 0,
+                                y2: 1,
+                                colorStops: [{
+                                    offset: 0, color: 'rgba(35, 134, 54, 0.3)'
+                                }, {
+                                    offset: 1, color: 'rgba(35, 134, 54, 0.05)'
+                                }]
+                            }
+                        }
+                    }
+                ]
+            };
+        }
+        
+        // 创建分布图配置
+        function createDistributionChartOption(data) {
+            const oddCount = (data && data.todayOdd) || 0;
+            const evenCount = (data && data.todayEven) || 0;
+            
+            return {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'item',
+                    formatter: '{a} <br/>{b}: {c} ({d}%)',
+                    backgroundColor: 'var(--qoder-surface)',
+                    borderColor: 'var(--qoder-border)',
+                    textStyle: {
+                        color: 'var(--qoder-text)'
+                    }
+                },
+                legend: {
+                    orient: 'vertical',
+                    right: 10,
+                    top: 'center',
+                    textStyle: {
+                        color: 'var(--qoder-text)'
+                    }
+                },
+                series: [{
+                    name: '单双数分布',
+                    type: 'pie',
+                    radius: ['40%', '70%'],
+                    center: ['40%', '50%'],
+                    avoidLabelOverlap: false,
+                    label: {
+                        show: false,
+                        position: 'center'
+                    },
+                    emphasis: {
+                        label: {
+                            show: true,
+                            fontSize: '18',
+                            fontWeight: 'bold',
+                            color: 'var(--qoder-text)'
+                        }
+                    },
+                    labelLine: {
+                        show: false
+                    },
+                    data: [
+                        { 
+                            value: oddCount, 
+                            name: '单数', 
+                            itemStyle: { 
+                                color: '#3fb950',
+                                shadowBlur: 10,
+                                shadowColor: 'rgba(63, 185, 80, 0.3)'
+                            } 
+                        },
+                        { 
+                            value: evenCount, 
+                            name: '双数', 
+                            itemStyle: { 
+                                color: '#238636',
+                                shadowBlur: 10,
+                                shadowColor: 'rgba(35, 134, 54, 0.3)'
+                            } 
+                        }
+                    ]
+                }]
+            };
+        }
+        
+        // 创建热力图配置
+        function createHeatmapChartOption(data) {
+            return {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    position: 'top',
+                    backgroundColor: 'var(--qoder-surface)',
+                    borderColor: 'var(--qoder-border)',
+                    textStyle: {
+                        color: 'var(--qoder-text)'
+                    }
+                },
+                grid: {
+                    height: '80%',
+                    top: '10%'
+                },
+                xAxis: {
+                    type: 'category',
+                    data: Array.from({length: 24}, (_, i) => i + 'h'),
+                    splitArea: {
+                        show: true
+                    },
+                    axisLabel: {
+                        color: 'var(--qoder-text-secondary)'
+                    }
+                },
+                yAxis: {
+                    type: 'category',
+                    data: ['单数', '双数'],
+                    axisLabel: {
+                        color: 'var(--qoder-text-secondary)'
+                    }
+                },
+                visualMap: {
+                    min: 0,
+                    max: 10,
+                    calculable: true,
+                    orient: 'horizontal',
+                    left: 'center',
+                    bottom: '5%',
+                    textStyle: {
+                        color: 'var(--qoder-text)'
+                    },
+                    inRange: {
+                        color: ['#313695', '#4575b4', '#74add1', '#abd9e9', '#e0f3f8', '#ffffbf', '#fee090', '#fdae61', '#f46d43', '#d73027', '#a50026']
+                    }
+                },
+                series: [{
+                    name: '区块数量',
+                    type: 'heatmap',
+                    data: generateHeatmapData(),
+                    label: {
+                        show: true,
+                        color: 'var(--qoder-text)'
+                    },
+                    emphasis: {
+                        itemStyle: {
+                            shadowBlur: 10,
+                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                        }
+                    }
+                }]
+            };
+        }
+        
+        // 生成热力图数据
+        function generateHeatmapData() {
+            const data = [];
+            for (let hour = 0; hour < 24; hour++) {
+                // 单数数据
+                data.push([hour, 0, Math.floor(Math.random() * 10)]);
+                // 双数数据
+                data.push([hour, 1, Math.floor(Math.random() * 10)]);
+            }
+            return data;
+        }
+        
+        // 切换仪表盘自动刷新
+        function toggleDashboardAutoRefresh() {
+            if (isDashboardAutoRefreshing) {
+                clearInterval(dashboardAutoRefreshInterval);
+                isDashboardAutoRefreshing = false;
+            } else {
+                dashboardAutoRefreshInterval = setInterval(refreshDashboardData, 30000);
+                isDashboardAutoRefreshing = true;
+            }
+            updateDashboardAutoRefreshButton();
+        }
+        
+        // 更新仪表盘自动刷新按钮状态
+        function updateDashboardAutoRefreshButton() {
+            const btn = document.getElementById('dashboardAutoRefreshBtn');
+            if (btn) {
+                if (isDashboardAutoRefreshing) {
+                    btn.innerHTML = '<i class="fas fa-pause"></i> 暂停自动刷新';
+                } else {
+                    btn.innerHTML = '<i class="fas fa-play"></i> 开始自动刷新';
+                }
+            }
+        }
+        
+        // 导出数据
+        function exportData() {
+            // 模拟数据导出
+            console.log('导出数据功能开发中...');
+            alert('数据导出功能即将推出，敬请期待！');
+        }
+        
+        // 初始化实时图表
+        function initRealtimeChart() {
+            if (!realtimeChart) return;
+            
+            const option = {
+                backgroundColor: 'transparent',
+                tooltip: {
+                    trigger: 'axis',
+                    backgroundColor: 'var(--qoder-surface)',
+                    borderColor: 'var(--qoder-border)',
+                    textStyle: {
+                        color: 'var(--qoder-text)'
+                    }
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '8%',
+                    top: '10%',
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'time',
+                    boundaryGap: false,
+                    axisLine: {
+                        lineStyle: {
+                            color: 'var(--qoder-border)'
+                        }
+                    },
+                    axisLabel: {
+                        color: 'var(--qoder-text-secondary)'
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    axisLine: {
+                        lineStyle: {
+                            color: 'var(--qoder-border)'
+                        }
+                    },
+                    axisLabel: {
+                        color: 'var(--qoder-text-secondary)'
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: 'var(--qoder-border)',
+                            opacity: 0.3
+                        }
+                    }
+                },
+                series: [{
+                    name: '实时数据',
+                    type: 'line',
+                    smooth: true,
+                    data: generateRealtimeData(),
+                    lineStyle: {
+                        color: '#238636',
+                        width: 2
+                    },
+                    areaStyle: {
+                        color: {
+                            type: 'linear',
+                            x: 0,
+                            y: 0,
+                            x2: 0,
+                            y2: 1,
+                            colorStops: [{
+                                offset: 0, color: 'rgba(35, 134, 54, 0.3)'
+                            }, {
+                                offset: 1, color: 'rgba(35, 134, 54, 0.05)'
+                            }]
+                        }
+                    },
+                    symbol: 'circle',
+                    symbolSize: 4
+                }]
+            };
+            
+            realtimeChart.setOption(option);
+        }
+        
+        // 生成实时数据
+        function generateRealtimeData() {
+            const data = [];
+            const now = new Date();
+            for (let i = 0; i < 50; i++) {
+                const time = new Date(now.getTime() - (49 - i) * 1000);
+                data.push([time, Math.random() * 100]);
+            }
+            return data;
+        }
+        
+        // 更新实时图表
+        function updateRealtimeChart() {
+            if (!realtimeChart) return;
+            
+            const option = realtimeChart.getOption();
+            const series = option.series[0];
+            const data = series.data;
+            
+            // 添加新数据点
+            const now = new Date();
+            data.push([now, Math.random() * 100]);
+            
+            // 保持最后50个数据点
+            if (data.length > 50) {
+                data.shift();
+            }
+            
+            realtimeChart.setOption({
+                series: [{
+                    data: data
+                }]
+            });
+        }
+
+        // 区块打点数据刷新
+        async function refreshBlocksData() {
+            try {
+                console.log('正在获取区块打点数据...', 'timeRange:', currentTimeRange);
+                const data = await apiRequest(`/api/blocks/points?timeRange=${currentTimeRange}`);
+                console.log('获取到的打点数据:', data);
+                
+                // 检查数据是否有效
+                if (data && data.points) {
+                    console.log('数据有效，开始更新图表...');
+                    updateBlocksChart(data.points);
+                    // 更新统计数据，如果没有统计数据则使用默认值
+                    const stats = data.stats || {
+                        currentScore: 0,
+                        maxScore: 0,
+                        minScore: 0,
+                        totalPointChange: 0
+                    };
+                    updatePointsStats(stats);
+                    
+                    // 更新信息显示
+                    const chartInfo = document.getElementById('chartInfo');
+                    if (chartInfo) {
+                        chartInfo.textContent = `显示${data.points.length}个区块的打点数据`;
+                    }
+                } else {
+                    console.warn('没有获取到有效的打点数据');
+                    // 显示默认值
+                    updatePointsStats({
+                        currentScore: 0,
+                        maxScore: 0,
+                        minScore: 0,
+                        totalPointChange: 0
+                    });
+                    const chartInfo = document.getElementById('chartInfo');
+                    if (chartInfo) {
+                        chartInfo.textContent = '暂无数据';
+                    }
+                }
+                
+            } catch (error) {
+                console.error('获取区块数据失败:', error);
+                
+                // 显示错误状态
+                const elements = ['currentScore', 'maxScore', 'minScore', 'totalChange'];
+                elements.forEach(id => {
+                    const element = document.getElementById(id);
+                    if (element) {
+                        element.textContent = '获取失败';
+                    }
+                });
+                
+                const chartInfo = document.getElementById('chartInfo');
+                if (chartInfo) {
+                    chartInfo.textContent = '数据加载失败';
+                }
+                
+                if (error.message && error.message.includes('token')) {
+                    localStorage.removeItem('token');
+                    window.location.href = '/login';
+                }
+            }
+        }
+
+        // 更新打点统计数据
+        function updatePointsStats(stats) {
+            console.log('更新打点统计:', stats);
+            
+            // 处理空数据或未定义的情况
+            const currentScore = stats.currentScore !== undefined ? stats.currentScore : 0;
+            const maxScore = stats.maxScore !== undefined ? stats.maxScore : currentScore;
+            const minScore = stats.minScore !== undefined ? stats.minScore : currentScore;
+            const totalChange = stats.totalPointChange !== undefined ? stats.totalPointChange : 0;
+            
+            // 更新数值显示
+            animateValue('currentScore', currentScore);
+            animateValue('maxScore', maxScore);
+            animateValue('minScore', minScore);
+            
+            const changeElement = document.getElementById('totalChange');
+            if (changeElement) {
+                const prefix = totalChange > 0 ? '+' : (totalChange < 0 ? '' : '');
+                animateValue('totalChange', totalChange, '', prefix);
+                
+                // 根据变化值设置颜色
+                if (totalChange > 0) {
+                    changeElement.style.color = 'var(--qoder-success)';
+                } else if (totalChange < 0) {
+                    changeElement.style.color = 'var(--qoder-danger)';
+                } else {
+                    changeElement.style.color = 'var(--qoder-text-secondary)';
+                }
+            }
+            
+            console.log(`统计更新完成: 当前${currentScore}, 最高${maxScore}, 最低${minScore}, 变化${totalChange}`);
+        }
+
+        // 时间范围切换
+        function changeTimeRange() {
+            const select = document.getElementById('timeRangeSelect');
+            currentTimeRange = select.value;
+            refreshBlocksData();
+        }
+
+        // 更新仪表盘数据
+        function updateDashboard(stats) {
+            console.log('更新仪表盘数据:', stats);
+            
+            // 更新网络状态
+            const networkStatusElement = document.getElementById('networkStatus');
+            if (networkStatusElement) {
+                networkStatusElement.textContent = '正常';
+                networkStatusElement.className = 'metric-value';
+            }
+            
+            // 数值动画效果
+            animateValue('todayTotal', stats.todayTotal);
+            
+            const oddRate = stats.todayTotal > 0 ? (stats.todayOdd / stats.todayTotal * 100).toFixed(2) : 0;
+            animateValue('oddRate', oddRate, '%');
+            
+            // 计算平均出块时间（模拟数据）
+            const avgBlockTime = 3.0; // TRON网络平均出块时间约3秒
+            animateValue('avgBlockTime', avgBlockTime);
+
+            // 更新当前区块信息
+            if (stats.currentBlock) {
+                document.getElementById('currentBlockNumber').textContent = stats.currentBlock.number;
+                document.getElementById('currentBlockHash').textContent = stats.currentBlock.hash;
+                document.getElementById('currentLastDigit').textContent = stats.currentBlock.lastDigit;
+                
+                const isOddBadge = document.getElementById('currentIsOdd');
+                isOddBadge.textContent = stats.currentBlock.isOdd ? '单数' : '双数';
+                isOddBadge.className = `badge ${stats.currentBlock.isOdd ? 'success' : 'info'}`;
+                
+                const blockTime = new Date(stats.currentBlock.timestamp);
+                document.getElementById('currentBlockTime').textContent = blockTime.toLocaleString('zh-CN');
+                
+                // 模拟更多区块信息
+                const blockSizeElement = document.getElementById('currentBlockSize');
+                if (blockSizeElement) {
+                    blockSizeElement.textContent = Math.floor(Math.random() * 50 + 10) + ' KB';
+                }
+                
+                const txCountElement = document.getElementById('currentTxCount');
+                if (txCountElement) {
+                    txCountElement.textContent = Math.floor(Math.random() * 100 + 10);
+                }
+            }
+
+            // 更新主图表
+            updateMainChart(currentChartView, stats);
+        }
+
+        // 数值动画效果
+        function animateValue(elementId, targetValue, suffix = '', prefix = '') {
+            const element = document.getElementById(elementId);
+            if (!element) {
+                console.warn(`找不到元素: ${elementId}`);
+                return;
+            }
+            
+            // 处理空值或非数字值
+            if (targetValue === null || targetValue === undefined) {
+                element.textContent = prefix + '0' + suffix;
+                return;
+            }
+            
+            const startValue = parseFloat(element.textContent.replace(/[^\d.-]/g, '')) || 0;
+            const duration = 1000;
+            const startTime = performance.now();
+            
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                
+                // 使用缓动动画函数
+                const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+                const currentValue = startValue + (targetValue - startValue) * easeOutQuart;
+                
+                // 如果是小数，保疙2位小数
+                const displayValue = targetValue % 1 === 0 ? Math.floor(currentValue) : currentValue.toFixed(2);
+                element.textContent = prefix + displayValue + suffix;
+                
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                }
+            }
+            
+            requestAnimationFrame(update);
+        }
+
+
+
+        // 更新区块打点图表
+        function updateBlocksChart(points) {
+            console.log('开始更新区块打点图表, 数据点数:', points ? points.length : 0);
+            
+            if (!blocksChart) {
+                console.error('区块打点图表未初始化');
+                return;
+            }
+            
+            if (!points || points.length === 0) {
+                console.log('没有打点数据，显示空图表');
+                // 显示空图表
+                const emptyOption = {
+                    backgroundColor: 'transparent',
+                    graphic: {
+                        type: 'text',
+                        left: 'center',
+                        top: 'center',
+                        style: {
+                            text: '暂无数据\n请稍后刷新试试',
+                            fontSize: 16,
+                            fill: 'var(--qoder-text-secondary)',
+                            textAlign: 'center'
+                        }
+                    }
+                };
+                blocksChart.setOption(emptyOption, true);
+                return;
+            }
+
+            // 按时间戳排序（从早到晚）
+            points.sort((a, b) => a.timestamp - b.timestamp);
+            console.log('排序后的时间范围:', new Date(points[0].timestamp).toLocaleString(), 'to', new Date(points[points.length-1].timestamp).toLocaleString());
+
+            // 准备数据 - X轴使用时间，Y轴使用累积分数
+            const timeData = points.map(point => new Date(point.timestamp));
+            const scoreData = points.map(point => point.cumulative_score);
+            
+            console.log('累积分数范围:', Math.min(...scoreData), 'to', Math.max(...scoreData));
+            
+            // 为线图准备数据（时间，累积分数）
+            const lineData = points.map(point => [new Date(point.timestamp), point.cumulative_score]);
+            
+            // 为散点图准备数据（时间，累积分数，额外信息）
+            const scatterData = points.map(point => [
+                new Date(point.timestamp),
+                point.cumulative_score,
+                point.last_digit,
+                point.block_hash,
+                point.block_number,
+                point.point_change
+            ]);
+
+            const option = {
+                backgroundColor: 'transparent',
+                // 添加工具箱
+                toolbox: {
+                    show: true,
+                    orient: 'horizontal',
+                    left: 'right',
+                    top: 'top',
+                    feature: {
+                        restore: {
+                            show: true,
+                            title: '还原',
+                            iconStyle: {
+                                color: 'var(--qoder-primary)',
+                                borderColor: 'var(--qoder-primary)'
+                            },
+                            emphasis: {
+                                iconStyle: {
+                                    color: 'var(--qoder-primary-hover)'
+                                }
+                            }
+                        },
+                        saveAsImage: {
+                            show: true,
+                            title: '保存图片',
+                            name: '累积计分趋势图',
+                            backgroundColor: 'var(--qoder-bg)',
+                            iconStyle: {
+                                color: 'var(--qoder-primary)',
+                                borderColor: 'var(--qoder-primary)'
+                            },
+                            emphasis: {
+                                iconStyle: {
+                                    color: 'var(--qoder-primary-hover)'
+                                }
+                            }
+                        }
+                    },
+                    iconStyle: {
+                        borderWidth: 1
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(22, 27, 34, 0.9)',
+                        borderColor: 'var(--qoder-primary)',
+                        textStyle: {
+                            color: 'var(--qoder-text)',
+                            fontSize: 12
+                        }
+                    }
+                },
+                // 添加横向滚动缩放功能
+                dataZoom: [
+                    {
+                        type: 'slider',
+                        show: true,
+                        xAxisIndex: [0],
+                        start: Math.max(0, 100 - (1200 * 100 / Math.max(1200, lineData.length || 1200))), // 默认显示最后1200个点（1小时）
+                        end: 100,
+                        height: 25,
+                        bottom: 45,
+                        fillerColor: 'rgba(35, 134, 54, 0.3)',
+                        borderColor: 'var(--qoder-primary)',
+                        handleStyle: {
+                            color: 'var(--qoder-primary)',
+                            borderColor: 'var(--qoder-primary)',
+                            borderWidth: 2
+                        },
+                        moveHandleStyle: {
+                            color: 'var(--qoder-primary)',
+                            opacity: 0.8
+                        },
+                        selectedDataBackground: {
+                            lineStyle: {
+                                color: 'var(--qoder-primary)',
+                                opacity: 0.8
+                            },
+                            areaStyle: {
+                                color: 'rgba(35, 134, 54, 0.2)'
+                            }
+                        },
+                        dataBackground: {
+                            lineStyle: {
+                                color: 'var(--qoder-border)',
+                                opacity: 0.5
+                            },
+                            areaStyle: {
+                                color: 'rgba(255, 255, 255, 0.05)'
+                            }
+                        },
+                        textStyle: {
+                            color: 'var(--qoder-text-secondary)',
+                            fontSize: 10
+                        },
+                        // 显示时间标签
+                        labelFormatter: function(value) {
+                            const date = new Date(value);
+                            return date.getHours().toString().padStart(2, '0') + ':00';
+                        }
+                    },
+                    {
+                        type: 'inside',
+                        xAxisIndex: [0],
+                        start: Math.max(0, 100 - (1200 * 100 / Math.max(1200, lineData.length || 1200))),
+                        end: 100,
+                        zoomOnMouseWheel: true, // 鼠标滚轮缩放
+                        moveOnMouseMove: true,  // 拖拽移动
+                        moveOnMouseWheel: false // 禁用滚轮移动，保留缩放功能
+                    }
+                ],
+                tooltip: {
+                    trigger: 'axis',
+                    backgroundColor: 'rgba(22, 27, 34, 0.95)',
+                    borderColor: 'var(--qoder-primary)',
+                    borderWidth: 1,
+                    textStyle: {
+                        color: 'var(--qoder-text)',
+                        fontSize: 13
+                    },
+                    padding: [12, 16],
+                    extraCssText: 'border-radius: 8px; box-shadow: 0 8px 32px rgba(0,0,0,0.3); backdrop-filter: blur(10px);',
+                    axisPointer: {
+                        type: 'line',
+                        lineStyle: {
+                            color: 'var(--qoder-primary)',
+                            width: 2,
+                            type: 'dashed'
+                        }
+                    },
+                    formatter: function(params) {
+                        if (params && params.length > 0) {
+                            const param = params[0];
+                            const [timestamp, cumulativeScore, lastDigit, blockHash, blockNumber, pointChange] = param.data;
+                            const isPositive = pointChange > 0;
+                            const timeStr = new Date(timestamp).toLocaleString('zh-CN');
+                            return `
+                                <div style="padding: 4px;">
+                                    <div style="font-weight: bold; margin-bottom: 8px; color: var(--qoder-primary); font-size: 14px;">
+                                        <i class="fas fa-cube" style="margin-right: 6px;"></i>区块 #${blockNumber}
+                                    </div>
+                                    <div style="margin-bottom: 6px; color: var(--qoder-text-secondary);">
+                                        <i class="fas fa-clock" style="margin-right: 6px; color: var(--qoder-primary);"></i>${timeStr}
+                                    </div>
+                                    <div style="margin-bottom: 4px;">
+                                        <span style="color: var(--qoder-text-secondary);">末位数字:</span> 
+                                        <span style="color: ${isPositive ? '#238636' : '#f85149'}; font-weight: bold;">${lastDigit}</span>
+                                        <span style="margin-left: 8px; color: var(--qoder-text-secondary);">类型:</span>
+                                        <span style="color: ${isPositive ? '#238636' : '#f85149'}; font-weight: bold;">${isPositive ? '双数' : '单数'}</span>
+                                    </div>
+                                    <div style="margin-bottom: 4px;">
+                                        <span style="color: var(--qoder-text-secondary);">分数变化:</span> 
+                                        <span style="color: ${isPositive ? '#238636' : '#f85149'}; font-weight: bold; font-size: 15px;">${pointChange > 0 ? '+' : ''}${pointChange}</span>
+                                    </div>
+                                    <div style="margin-bottom: 8px; padding-top: 4px; border-top: 1px solid var(--qoder-border);">
+                                        <span style="color: var(--qoder-text-secondary);">累积分数:</span> 
+                                        <span style="font-weight: bold; color: var(--qoder-primary); font-size: 16px;">${cumulativeScore}</span>
+                                    </div>
+                                    <div style="font-size: 11px; color: var(--qoder-text-secondary); font-family: monospace;">
+                                        <i class="fas fa-fingerprint" style="margin-right: 4px;"></i>${blockHash.substring(0, 24)}...
+                                    </div>
+                                </div>
+                            `;
+                        }
+                    }
+                },
+                grid: {
+                    left: '3%',
+                    right: '4%',
+                    bottom: '18%', // 为横向滚动条留出空间
+                    top: '12%', // 为工具箱留出空间
+                    containLabel: true
+                },
+                xAxis: {
+                    type: 'time',
+                    name: '时间轴 (3秒/区块)',
+                    nameLocation: 'middle',
+                    nameGap: 35,
+                    nameTextStyle: {
+                        color: 'var(--qoder-text)',
+                        fontSize: 13,
+                        fontWeight: 'bold'
+                    },
+                    // 不固定时间范围，让数据决定范围
+                    // min 和 max 由数据自动决定
+                    
+                    // 去掉固定间隔，让ECharts自动选择最佳间隔
+                    // interval: 'auto',
+                    axisLine: {
+                        show: true,
+                        lineStyle: {
+                            color: 'var(--qoder-primary)',
+                            width: 2
+                        }
+                    },
+                    axisTick: {
+                        show: true,
+                        lineStyle: {
+                            color: 'var(--qoder-primary)',
+                            width: 1
+                        }
+                    },
+                    axisLabel: {
+                        color: 'var(--qoder-text-secondary)',
+                        fontSize: 11,
+                        fontWeight: '500',
+                        // 去掉固定interval，让ECharts自动选择
+                        formatter: function(value) {
+                            const date = new Date(value);
+                            const hours = date.getHours();
+                            const minutes = date.getMinutes();
+                            const seconds = date.getSeconds();
+                            
+                            // 根据秒数决定显示精度
+                            if (seconds === 0 && minutes === 0) {
+                                // 整点显示小时
+                                return hours.toString().padStart(2, '0') + ':00';
+                            } else if (seconds === 0) {
+                                // 整分显示小时:分钟
+                                return hours.toString().padStart(2, '0') + ':' + minutes.toString().padStart(2, '0');
+                            } else {
+                                // 其他情况显示完整时间
+                                return hours.toString().padStart(2, '0') + ':' + 
+                                       minutes.toString().padStart(2, '0') + ':' + 
+                                       seconds.toString().padStart(2, '0');
+                            }
+                        },
+                        rotate: 45, // 旋转45度避免重叠
+                        margin: 15
+                    },
+                    splitLine: {
+                        show: true,
+                        lineStyle: {
+                            color: 'var(--qoder-border)',
+                            opacity: 0.4,
+                            type: 'dashed'
+                        }
+                    },
+                    minorSplitLine: {
+                        show: true,
+                        lineStyle: {
+                            color: 'var(--qoder-border)',
+                            opacity: 0.2
+                        }
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    name: '累积计分 (双数+1/单数-1)',
+                    nameLocation: 'middle',
+                    nameGap: 55,
+                    nameTextStyle: {
+                        color: 'var(--qoder-text)',
+                        fontSize: 13,
+                        fontWeight: 'bold'
+                    },
+                    // 让Y轴更精细地显示每个分数变化
+                    scale: true, // 启用缩放，更好地展示数据变化
+                    axisLine: {
+                        show: true,
+                        lineStyle: {
+                            color: 'var(--qoder-primary)',
+                            width: 2
+                        }
+                    },
+                    axisTick: {
+                        show: true,
+                        lineStyle: {
+                            color: 'var(--qoder-primary)',
+                            width: 1
+                        }
+                    },
+                    axisLabel: {
+                        color: 'var(--qoder-text-secondary)',
+                        fontSize: 11,
+                        fontWeight: '500',
+                        formatter: function(value) {
+                            // 整数显示，正数添加+号
+                            const intValue = Math.round(value);
+                            return intValue >= 0 ? '+' + intValue : intValue.toString();
+                        }
+                    },
+                    splitLine: {
+                        show: true,
+                        lineStyle: {
+                            color: 'var(--qoder-border)',
+                            opacity: 0.4,
+                            type: 'dashed'
+                        }
+                    },
+                    minorSplitLine: {
+                        show: true,
+                        lineStyle: {
+                            color: 'var(--qoder-border)',
+                            opacity: 0.2
+                        }
+                    },
+                    // 添加零线显示
+                    splitArea: {
+                        show: false
+                    }
+                },
+                series: [
+                    {
+                        name: '累积计分趋势',
+                        type: 'line',
+                        data: lineData,
+                        lineStyle: {
+                            color: 'var(--qoder-primary)',
+                            width: 4,
+                            shadowColor: 'rgba(35, 134, 54, 0.3)',
+                            shadowBlur: 8,
+                            shadowOffsetY: 2
+                        },
+                        areaStyle: {
+                            color: {
+                                type: 'linear',
+                                x: 0,
+                                y: 0,
+                                x2: 0,
+                                y2: 1,
+                                colorStops: [{
+                                    offset: 0, color: 'rgba(35, 134, 54, 0.4)'
+                                }, {
+                                    offset: 0.5, color: 'rgba(35, 134, 54, 0.2)'
+                                }, {
+                                    offset: 1, color: 'rgba(35, 134, 54, 0.05)'
+                                }]
+                            },
+                            shadowColor: 'rgba(35, 134, 54, 0.2)',
+                            shadowBlur: 10
+                        },
+                        // 默认不显示符号，只显示平滑曲线
+                        symbol: 'none',
+                        itemStyle: {
+                            color: 'var(--qoder-primary)',
+                            borderColor: '#ffffff',
+                            borderWidth: 2,
+                            shadowColor: 'rgba(35, 134, 54, 0.5)',
+                            shadowBlur: 8
+                        },
+                        emphasis: {
+                            scale: true,
+                            itemStyle: {
+                                shadowBlur: 15,
+                                shadowColor: 'rgba(35, 134, 54, 0.8)'
+                            }
+                        },
+                        smooth: true,
+                        smoothMonotone: 'x'
+                    },
+                    {
+                        name: '区块打点 (3秒间隔)',
+                        type: 'scatter',
+                        data: scatterData,
+                        // 每个3秒的点更明显
+                        symbolSize: 10,
+                        symbol: 'circle',
+                        itemStyle: {
+                            color: function(params) {
+                                const pointChange = params.data[5];
+                                return pointChange > 0 ? '#238636' : '#f85149';
+                            },
+                            borderColor: '#ffffff',
+                            borderWidth: 2,
+                            shadowColor: 'rgba(0, 0, 0, 0.4)',
+                            shadowBlur: 8,
+                            shadowOffsetY: 3
+                        },
+                        emphasis: {
+                            scale: true,
+                            focus: 'self',
+                            itemStyle: {
+                                shadowBlur: 15,
+                                borderWidth: 3,
+                                shadowColor: function(params) {
+                                    const pointChange = params.data[5];
+                                    return pointChange > 0 ? 'rgba(35, 134, 54, 0.8)' : 'rgba(248, 81, 73, 0.8)';
+                                }
+                            }
+                        },
+                        markLine: {
+                            silent: true,
+                            lineStyle: {
+                                color: 'var(--qoder-text-secondary)',
+                                type: 'dashed',
+                                width: 1,
+                                opacity: 0.6
+                            },
+                            data: [{
+                                yAxis: 0,
+                                label: {
+                                    show: true,
+                                    position: 'end',
+                                    formatter: '零线',
+                                    color: 'var(--qoder-text-secondary)',
+                                    fontSize: 10
+                                }
+                            }]
+                        }
+                    }
+                ]
+            };
+
+            console.log('设置图表选项，数据点数:', option.series[0].data.length, '散点数:', option.series[1].data.length);
+            blocksChart.setOption(option, true);
+            console.log('图表更新完成');
+        }
+
+        // 切换自动刷新
+        function toggleAutoRefresh() {
+            if (isAutoRefreshing) {
+                clearInterval(autoRefreshInterval);
+                isAutoRefreshing = false;
+            } else {
+                autoRefreshInterval = setInterval(refreshBlocksData, 10000);
+                isAutoRefreshing = true;
+            }
+            updateAutoRefreshButton();
+        }
+
+        // 更新自动刷新按钮状态
+        function updateAutoRefreshButton() {
+            const btn = document.getElementById('autoRefreshBtn');
+            if (btn) {
+                if (isAutoRefreshing) {
+                    btn.innerHTML = '<i class="fas fa-pause"></i> 暂停自动刷新';
+                } else {
+                    btn.innerHTML = '<i class="fas fa-play"></i> 开始自动刷新';
+                }
+            }
+        }
+
+        // 退出登录
+        function logout() {
+            localStorage.removeItem('token');
+            window.location.href = '/login';
+        }
+
+        // 页面加载完成后初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('页面加载完成，初始化系统...');
+            
+            // 初始化WebSocket连接
+            initWebSocket();
+            
+            // 初始化图表主题
+            const darkTheme = {
+                backgroundColor: 'transparent',
+                textStyle: {
+                    color: '#f0f6fc'
+                }
+            };
+            
+            // 设置主图表主题
+            if (mainChart) {
+                mainChart.setOption(darkTheme);
+            }
+            
+            // 默认显示智能仪表盘页面
+            showPage('dashboard');
+            
+            // 添加页面动画
+            const cards = document.querySelectorAll('.stats-card, .chart-card');
+            cards.forEach((card, index) => {
+                card.style.opacity = '0';
+                card.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    card.style.transition = 'all 0.6s ease';
+                    card.style.opacity = '1';
+                    card.style.transform = 'translateY(0)';
+                }, index * 100);
+            });
+            
+            console.log('系统初始化完成！');
+        });
+
+        // 窗口大小改变时重绘图表
+        window.addEventListener('resize', function() {
+            if (mainChart) {
+                mainChart.resize();
+            }
+            if (realtimeChart) {
+                realtimeChart.resize();
+            }
+            if (blocksChart) {
+                blocksChart.resize();
+            }
+            if (klineChart) {
+                klineChart.resize();
+            }
+            if (maChart) {
+                maChart.resize();
+            }
+            if (rsiChart) {
+                rsiChart.resize();
+            }
+        });
+        
+        // ==================== K线分析页面功能 ====================
+        
+        // 初始化K线图表
+        function initKlineCharts() {
+            const klineContainer = document.getElementById('klineChart');
+            const maContainer = document.getElementById('maChart');
+            const rsiContainer = document.getElementById('rsiChart');
+            
+            if (klineContainer && !klineChart) {
+                klineChart = echarts.init(klineContainer);
+                console.log('K线图表初始化完成 - 使用ECharts');
+            }
+            
+            if (maContainer && !maChart) {
+                maChart = echarts.init(maContainer);
+                console.log('移动平均线图表初始化完成');
+            }
+            
+            if (rsiContainer && !rsiChart) {
+                rsiChart = echarts.init(rsiContainer);
+                console.log('RSI图表初始化完成');
+            }
+        }
+
+        // 更新K线图表
+        function updateKlineChart(klineData, currentCandle) {
+            if (!klineChart || !klineData || klineData.length === 0) {
+                console.log('K线图表或数据不可用');
+                return;
+            }
+            
+            // 调试：输出原始数据格式
+            console.log('🔍 K线原始数据:', klineData.slice(0, 3));
+            
+            // 修复时间戳格式问题，支持毫秒时间戳
+            const timestamps = klineData.map(k => {
+                const timestamp = k.timestamp || k.time;
+                return new Date(timestamp).toLocaleString();
+            });
+            // 修复K线数据格式: ECharts需要 [open, close, low, high] 的顺序
+            const candlestickData = klineData.map(k => [k.open, k.close, k.low, k.high]);
+            const volumeData = klineData.map(k => k.volume);
+            
+            // 调试：输出转换后的数据
+            console.log('📊 ECharts蜡烛图数据:', candlestickData.slice(0, 3));
+            console.log('📈 时间轴数据:', timestamps.slice(0, 3));
+            
+            let option = {
+                animation: false,
+                backgroundColor: 'transparent',
+                textStyle: {
+                    color: '#ffffff'
+                },
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: {
+                        type: 'cross',
+                        crossStyle: {
+                            color: 'var(--qoder-primary)'
+                        }
+                    },
+                    backgroundColor: 'rgba(15, 23, 42, 0.95)',
+                    borderColor: 'var(--qoder-border)',
+                    textStyle: {
+                        color: '#ffffff'
+                    },
+                    formatter: function(params) {
+                        const data = params[0];
+                        if (!data || !data.data) return '';
+                        
+                        const [open, close, low, high] = data.data;
+                        const change = close - open;
+                        const changePercent = open !== 0 ? ((change / Math.abs(open)) * 100).toFixed(2) : '0.00';
+                        
+                        // 为负数数据优化显示
+                        let direction, color;
+                        if (change > 0) {
+                            direction = '📈 上涨';
+                            color = '#ff4757';
+                        } else if (change < 0) {
+                            direction = '📉 下跌';
+                            color = '#2ed573';
+                        } else {
+                            direction = '▶️ 横盘';
+                            color = '#ffa502';
+                        }
+                        
+                        // 为负数添加特殊标识
+                        const formatValue = (val) => {
+                            if (val < 0) {
+                                return `${val} (负值)`;
+                            }
+                            return `+${val}`;
+                        };
+                        
+                        return `
+                            <div style="padding: 8px;">
+                                <div style="font-weight: bold; margin-bottom: 8px;">${data.name}</div>
+                                <div style="color: ${color}; font-weight: bold; margin-bottom: 4px;">${direction}</div>
+                                <div>开盘: <span style="color: #ffa502;">${formatValue(open)}</span></div>
+                                <div>收盘: <span style="color: ${color};">${formatValue(close)}</span></div>
+                                <div>最高: <span style="color: #ff4757;">${formatValue(high)}</span></div>
+                                <div>最低: <span style="color: #2ed573;">${formatValue(low)}</span></div>
+                                <div>涨跌: <span style="color: ${color};">${change > 0 ? '+' : ''}${change} (${changePercent}%)</span></div>
+                                <div style="margin-top: 4px; font-size: 11px; color: #9ca3af;">
+                                    ℹ️ 支持负数数据显示
+                                </div>
+                            </div>
+                        `;
+                    }
+                },
+                grid: {
+                    left: '8%',
+                    right: '8%',
+                    top: '10%',
+                    bottom: '15%',
+                    backgroundColor: 'transparent',
+                    borderColor: 'var(--qoder-border)'
+                },
+                xAxis: {
+                    type: 'category',
+                    data: timestamps,
+                    scale: true,
+                    boundaryGap: false,
+                    axisLine: {
+                        lineStyle: {
+                            color: 'var(--qoder-border)'
+                        }
+                    },
+                    axisLabel: {
+                        color: '#9ca3af',
+                        fontSize: 11,
+                        formatter: function(value) {
+                            const date = new Date(value);
+                            return date.getHours().toString().padStart(2, '0') + ':' + 
+                                   date.getMinutes().toString().padStart(2, '0');
+                        }
+                    },
+                    splitLine: {
+                        show: false
+                    }
+                },
+                yAxis: {
+                    type: 'value',
+                    scale: false, // 禁用自动缩放，确保负数正常显示
+                    axisLine: {
+                        lineStyle: {
+                            color: 'var(--qoder-border)'
+                        }
+                    },
+                    axisLabel: {
+                        color: '#9ca3af',
+                        fontSize: 11,
+                        formatter: function(value) {
+                            return value.toFixed(0);
+                        }
+                    },
+                    splitLine: {
+                        lineStyle: {
+                            color: 'rgba(255, 255, 255, 0.1)',
+                            type: 'dashed'
+                        }
+                    }
+                },
+                series: []
+            };
+            
+            // 根据图表类型设置不同的系列
+            if (currentKlineChartType === 'candlestick') {
+                option.series.push({
+                    name: 'K线',
+                    type: 'candlestick',
+                    data: candlestickData,
+                    itemStyle: {
+                        color: '#ff4757',      // 阳线颜色(上涨) - 红色
+                        color0: '#2ed573',     // 阴线颜色(下跌) - 绿色
+                        borderColor: '#ff4757',
+                        borderColor0: '#2ed573'
+                    },
+                    barMaxWidth: 8,
+                    // 为负数K线添加零轴标记线
+                    markLine: {
+                        data: [{
+                            yAxis: 0,
+                            lineStyle: {
+                                color: '#ffa502',
+                                width: 2,
+                                type: 'solid'
+                            },
+                            label: {
+                                formatter: '零轴线',
+                                position: 'end',
+                                color: '#ffa502'
+                            }
+                        }],
+                        silent: true
+                    }
+                });
+            } else if (currentKlineChartType === 'line') {
+                const lineData = klineData.map(k => k.close);
+                option.series.push({
+                    name: '价格线',
+                    type: 'line',
+                    data: lineData,
+                    smooth: true,
+                    lineStyle: {
+                        color: 'var(--qoder-primary)',
+                        width: 2
+                    },
+                    areaStyle: {
+                        color: {
+                            type: 'linear',
+                            x: 0,
+                            y: 0,
+                            x2: 0,
+                            y2: 1,
+                            colorStops: [
+                                { offset: 0, color: 'rgba(74, 222, 128, 0.3)' },
+                                { offset: 1, color: 'rgba(74, 222, 128, 0.05)' }
+                            ]
+                        }
+                    },
+                    // 为线图添加零轴标记线
+                    markLine: {
+                        data: [{
+                            yAxis: 0,
+                            lineStyle: {
+                                color: '#ffa502',
+                                width: 1,
+                                type: 'dashed'
+                            },
+                            label: {
+                                formatter: '零轴',
+                                position: 'end',
+                                color: '#ffa502'
+                            }
+                        }],
+                        silent: true
+                    }
+                });
+            } else if (currentKlineChartType === 'volume') {
+                option.series.push({
+                    name: '成交量',
+                    type: 'bar',
+                    data: volumeData,
+                    itemStyle: {
+                        color: function(params) {
+                            const index = params.dataIndex;
+                            if (index === 0) return 'var(--qoder-primary)';
+                            const current = candlestickData[index];
+                            const prev = candlestickData[index - 1];
+                            return current[1] >= prev[1] ? '#ff4757' : '#2ed573';
+                        }
+                    },
+                    barMaxWidth: 8
+                });
+            }
+            
+            // 如果有实时数据，添加实时点
+            if (currentCandle && isKlineRealtime) {
+                option.series.push({
+                    name: '实时价格',
+                    type: 'scatter',
+                    data: [{
+                        value: [new Date(currentCandle.timestamp).toLocaleString(), currentCandle.close],
+                        symbol: 'circle',
+                        symbolSize: 8,
+                        itemStyle: {
+                            color: '#ffa502',
+                            borderColor: '#ffffff',
+                            borderWidth: 2
+                        }
+                    }],
+                    animation: true,
+                    animationDuration: 1000,
+                    z: 10
+                });
+            }
+            
+            // 调试：输出最终配置
+            console.log('🚀 ECharts K线配置:', {
+                seriesCount: option.series.length,
+                dataRange: {
+                    minVal: Math.min(...candlestickData.flat()),
+                    maxVal: Math.max(...candlestickData.flat())
+                },
+                sampleData: candlestickData.slice(0, 2),
+                timestampsSample: timestamps.slice(0, 2)
+            });
+            
+            // 确保图表存在并且数据有效
+            if (klineChart && candlestickData.length > 0) {
+                klineChart.setOption(option, true);
+                console.log('✅ K线图表更新完成，显示', klineData.length, '根K线');
+                
+                // 强制重绘图表
+                setTimeout(() => {
+                    klineChart.resize();
+                    console.log('🔄 图表尺寸已调整');
+                }, 100);
+            } else {
+                console.error('❌ K线图表初始化失败或数据为空');
+            }
+        }
+
+        // 切换K线数据数量
+        function changeKlineLimit() {
+            const select = document.getElementById('klineLimit');
+            currentKlineLimit = parseInt(select.value);
+            console.log('🔄 切换K线数量为:', currentKlineLimit, '个1分钟K线');
+            refreshKlineData();
+        }
+        
+        // 切换K线图表类型
+        function switchKlineChart(chartType) {
+            // 更新按钮状态
+            document.querySelectorAll('.chart-controls .btn-chart-control').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(chartType + 'Btn').classList.add('active');
+            
+            currentKlineChartType = chartType;
+            // 重新渲染图表
+            if (klineChart) {
+                refreshKlineData();
+            }
+        }
+
+        // 刷新K线数据
+        async function refreshKlineData() {
+            try {
+                console.log('🔍 开始刷新1分钟K线数据...');
+                console.log('🔑 当前token:', token ? 'token存在' : 'token不存在');
+                
+                // 使用新的1分钟K线专用API（每分钟20条3秒记录）
+                const klineData = await apiRequest(`/api/blocks/kline/1minute?limit=${currentKlineLimit}`);
+                
+                console.log('🎯 1分钟K线数据获取成功:', {
+                    timeFrame: klineData.timeFrame,
+                    candleCount: klineData.candleCount,
+                    recordsPerCandle: klineData.recordsPerCandle,
+                    description: klineData.description
+                });
+                
+                // 获取技术指标数据（基于生成的K线数据计算）
+                const indicatorsData = await calculateTechnicalIndicators(klineData.klineData);
+                
+                // 获取统计数据
+                const statsData = calculateKlineStats(klineData.klineData);
+                
+                // 更新图表
+                updateKlineChart(klineData.klineData, null);
+                updateIndicatorsCharts(klineData.klineData, indicatorsData);
+                updateKlineStats(statsData);
+                
+                // 显示K线信息
+                updateKlineInfo(klineData);
+                
+                console.log('✅ 1分钟K线数据刷新完成，生成了', klineData.klineData.length, '个K线蜡烛');
+            } catch (error) {
+                console.error('❌ 刷新1分钟K线数据失败:', error);
+                showErrorMessage('1分钟K线数据加载失败: ' + error.message);
+                
+                // 如果是认证错误，重新登录
+                if (error.message && (error.message.includes('token') || error.message.includes('401') || error.message.includes('认证'))) {
+                    console.log('🔄 检测到认证错误，重新跳转到登录页');
+                    localStorage.removeItem('token');
+                    window.location.href = '/login';
+                }
+            }
+        }
+        
+        // 更新技术指标图表
+        function updateIndicatorsCharts(klineData, indicators) {
+            if (!klineData || klineData.length === 0) return;
+            
+            const timestamps = klineData.map(k => new Date(k.timestamp).toLocaleString());
+            
+            // 更新移动平均线图表
+            if (maChart) {
+                const maOption = {
+                    backgroundColor: 'transparent',
+                    tooltip: {
+                        trigger: 'axis',
+                        backgroundColor: 'var(--qoder-surface)',
+                        borderColor: 'var(--qoder-border)',
+                        textStyle: { color: 'var(--qoder-text)' }
+                    },
+                    legend: {
+                        data: ['MA5', 'MA10', 'MA20'],
+                        textStyle: { color: 'var(--qoder-text)' }
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: timestamps,
+                        axisLabel: { color: 'var(--qoder-text-secondary)' }
+                    },
+                    yAxis: {
+                        type: 'value',
+                        axisLabel: { color: 'var(--qoder-text-secondary)' },
+                        splitLine: { lineStyle: { color: 'var(--qoder-border)', opacity: 0.3 } }
+                    },
+                    series: [
+                        {
+                            name: 'MA5',
+                            type: 'line',
+                            data: indicators.ma5,
+                            lineStyle: { color: '#ff6b35', width: 2 }, // 橙红色
+                            smooth: true
+                        },
+                        {
+                            name: 'MA10',
+                            type: 'line',
+                            data: indicators.ma10,
+                            lineStyle: { color: '#3742fa', width: 2 }, // 蓝色
+                            smooth: true
+                        },
+                        {
+                            name: 'MA20',
+                            type: 'line',
+                            data: indicators.ma20,
+                            lineStyle: { color: '#7b68ee', width: 2 }, // 紫色
+                            smooth: true
+                        }
+                    ]
+                };
+                maChart.setOption(maOption, true);
+            }
+            
+            // 更新RSI图表
+            if (rsiChart) {
+                const rsiOption = {
+                    backgroundColor: 'transparent',
+                    tooltip: {
+                        trigger: 'axis',
+                        backgroundColor: 'var(--qoder-surface)',
+                        borderColor: 'var(--qoder-border)',
+                        textStyle: { color: 'var(--qoder-text)' }
+                    },
+                    xAxis: {
+                        type: 'category',
+                        data: timestamps,
+                        axisLabel: { color: 'var(--qoder-text-secondary)' }
+                    },
+                    yAxis: {
+                        type: 'value',
+                        min: 0,
+                        max: 100,
+                        axisLabel: { color: 'var(--qoder-text-secondary)' },
+                        splitLine: { lineStyle: { color: 'var(--qoder-border)', opacity: 0.3 } }
+                    },
+                    series: [{
+                        name: 'RSI',
+                        type: 'line',
+                        data: indicators.rsi,
+                        lineStyle: { color: '#ff6b35', width: 3 }, // 使用橙红色
+                        areaStyle: {
+                            color: {
+                                type: 'linear',
+                                x: 0, y: 0, x2: 0, y2: 1,
+                                colorStops: [
+                                    { offset: 0, color: 'rgba(255, 107, 53, 0.3)' },
+                                    { offset: 1, color: 'rgba(255, 107, 53, 0.05)' }
+                                ]
+                            }
+                        },
+                        smooth: true
+                    }],
+                    markLine: {
+                        data: [
+                            { yAxis: 70, lineStyle: { color: '#ff4757', type: 'dashed' } }, // 红色超买线
+                            { yAxis: 30, lineStyle: { color: '#2ed573', type: 'dashed' } }  // 绿色超卖线
+                        ]
+                    }
+                };
+                rsiChart.setOption(rsiOption, true);
+            }
+        }
+        
+        // 更新K线统计数据
+        function updateKlineStats(stats) {
+            document.getElementById('klineTotalChange').textContent = stats.totalChange > 0 ? '+' + stats.totalChange : stats.totalChange;
+            document.getElementById('klineMaxGain').textContent = '+' + stats.maxGain;
+            document.getElementById('klineMaxLoss').textContent = '-' + stats.maxLoss;
+            document.getElementById('klineAvgVolume').textContent = stats.avgVolume.toFixed(1);
+        }
+        
+        // 切换K线数据数量
+        function changeKlineLimit() {
+            const select = document.getElementById('klineLimit');
+            currentKlineLimit = parseInt(select.value);
+            console.log('🔄 切换K线数量为:', currentKlineLimit, '个1分钟K线');
+            refreshKlineData();
+        }
+        
+        // 切换K线图表类型
+        function switchKlineChart(chartType) {
+            // 更新按钮状态
+            document.querySelectorAll('.chart-controls .btn-chart-control').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(chartType + 'Btn').classList.add('active');
+            
+            currentKlineChartType = chartType;
+            // 重新渲染图表
+            if (klineChart) {
+                refreshKlineData();
+            }
+        }
+        
+        // 切换K线实时模式
+        function toggleKlineRealtime() {
+            isKlineRealtime = !isKlineRealtime;
+            const btn = document.getElementById('klineRealtimeBtn');
+            
+            if (isKlineRealtime) {
+                btn.innerHTML = '<i class="fas fa-pause"></i> 关闭实时';
+                btn.style.background = 'var(--qoder-danger)';
+                
+                console.log('🟢 开启K线实时模式');
+                
+                // 如果WebSocket已连接，发送订阅消息
+                if (websocket && wsConnected) {
+                    websocket.send(JSON.stringify({
+                        type: 'subscribe',
+                        channel: 'kline'  // 使用正确的字段名
+                    }));
+                }
+                
+                // 备用：如果WebSocket不可用，使用轮询
+                if (!wsConnected) {
+                    console.log('🔄 WebSocket未连接，使用轮询模式');
+                    if (klineAutoRefreshInterval) {
+                        clearInterval(klineAutoRefreshInterval);
+                    }
+                    klineAutoRefreshInterval = setInterval(refreshKlineData, 30000);
+                }
+                
+                refreshKlineData(); // 立即刷新一次
+            } else {
+                btn.innerHTML = '<i class="fas fa-play"></i> 开启实时';
+                btn.style.background = 'var(--qoder-primary)';
+                
+                console.log('🔴 关闭K线实时模式');
+                
+                // 取消订阅
+                if (websocket && wsConnected) {
+                    websocket.send(JSON.stringify({
+                        type: 'unsubscribe',
+                        channel: 'kline'  // 使用正确的字段名
+                    }));
+                }
+                
+                // 停止自动刷新
+                if (klineAutoRefreshInterval) {
+                    clearInterval(klineAutoRefreshInterval);
+                }
+            }
+        }
+        
+        // 显示错误消息
+        function showErrorMessage(message) {
+            console.error(message);
+            // 这里可以添加UI错误提示
+        }
+        
+        // 更新K线信息显示
+        function updateKlineInfo(klineData) {
+            if (!klineData) return;
+            
+            // 更新页面上的K线信息显示
+            const infoElement = document.getElementById('klineInfo');
+            if (infoElement) {
+                infoElement.innerHTML = `
+                    <div class="kline-info-item">
+                        <i class="fas fa-chart-bar"></i>
+                        <span>时间周期: ${klineData.timeFrame}</span>
+                    </div>
+                    <div class="kline-info-item">
+                        <i class="fas fa-candle-holder"></i>
+                        <span>K线数量: ${klineData.candleCount}个</span>
+                    </div>
+                    <div class="kline-info-item">
+                        <i class="fas fa-database"></i>
+                        <span>每个K线: ${klineData.recordsPerCandle}条记录</span>
+                    </div>
+                    <div class="kline-info-description">
+                        ${klineData.description}
+                    </div>
+                `;
+            }
+        }
+        
+        // 计算技术指标（前端计算）
+        function calculateTechnicalIndicators(klineData) {
+            if (!klineData || klineData.length === 0) {
+                return { ma5: [], ma10: [], ma20: [], rsi: [] };
+            }
+            
+            const closes = klineData.map(k => k.close);
+            
+            return {
+                ma5: calculateMA(closes, 5),
+                ma10: calculateMA(closes, 10),
+                ma20: calculateMA(closes, 20),
+                rsi: calculateRSI(closes, 14)
+            };
+        }
+        
+        // 计算移动平均线
+        function calculateMA(prices, period) {
+            const ma = [];
+            
+            for (let i = 0; i < prices.length; i++) {
+                if (i < period - 1) {
+                    ma.push(null);
+                } else {
+                    const sum = prices.slice(i - period + 1, i + 1).reduce((a, b) => a + b, 0);
+                    ma.push(sum / period);
+                }
+            }
+            
+            return ma;
+        }
+        
+        // 计算RSI指标
+        function calculateRSI(prices, period = 14) {
+            const rsi = [];
+            
+            if (prices.length < period + 1) {
+                return new Array(prices.length).fill(null);
+            }
+            
+            for (let i = 0; i < period; i++) {
+                rsi.push(null);
+            }
+            
+            for (let i = period; i < prices.length; i++) {
+                let gains = 0;
+                let losses = 0;
+                
+                for (let j = i - period + 1; j <= i; j++) {
+                    const change = prices[j] - prices[j - 1];
+                    if (change > 0) {
+                        gains += change;
+                    } else {
+                        losses += Math.abs(change);
+                    }
+                }
+                
+                const avgGain = gains / period;
+                const avgLoss = losses / period;
+                
+                if (avgLoss === 0) {
+                    rsi.push(100);
+                } else {
+                    const rs = avgGain / avgLoss;
+                    rsi.push(100 - (100 / (1 + rs)));
+                }
+            }
+            
+            return rsi;
+        }
+        
+        // 计算K线统计数据
+        function calculateKlineStats(klineData) {
+            if (!klineData || klineData.length === 0) {
+                return {
+                    totalChange: 0,
+                    maxGain: 0,
+                    maxLoss: 0,
+                    positiveCount: 0,
+                    negativeCount: 0,
+                    avgVolume: 0
+                };
+            }
+            
+            let maxGain = 0;
+            let maxLoss = 0;
+            let positiveCount = 0;
+            let negativeCount = 0;
+            let totalVolume = 0;
+            
+            for (const candle of klineData) {
+                const change = candle.close - candle.open;
+                if (change > 0) {
+                    positiveCount++;
+                    maxGain = Math.max(maxGain, change);
+                } else if (change < 0) {
+                    negativeCount++;
+                    maxLoss = Math.min(maxLoss, change);
+                }
+                totalVolume += candle.volume;
+            }
+            
+            const totalChange = klineData[klineData.length - 1].close - klineData[0].open;
+            const avgVolume = totalVolume / klineData.length;
+            
+            return {
+                totalChange,
+                maxGain,
+                maxLoss: Math.abs(maxLoss),
+                positiveCount,
+                negativeCount,
+                avgVolume
+            };
+        }
+    </script>
+</body>
+</html>

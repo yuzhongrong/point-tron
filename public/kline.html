@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Point-Tron K线图表</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@2.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            text-align: center;
+            color: #333;
+            font-weight: 600;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 1rem 0;
+            flex-wrap: wrap;
+        }
+
+        .control-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .control-group label {
+            font-weight: 500;
+            color: #555;
+        }
+
+        select, button {
+            padding: 0.5rem 1rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: white;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        select:hover, button:hover {
+            border-color: #667eea;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+        }
+
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            font-weight: 500;
+        }
+
+        button:hover {
+            background: #5a6fd8;
+            transform: translateY(-1px);
+        }
+
+        .dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .positive { color: #10b981; }
+        .negative { color: #ef4444; }
+        .neutral { color: #6b7280; }
+
+        .chart-container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 2rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            margin-bottom: 2rem;
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .chart-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: #666;
+        }
+
+        .error {
+            background: #fee;
+            border: 1px solid #fcc;
+            color: #c33;
+            padding: 1rem;
+            border-radius: 6px;
+            margin: 1rem 0;
+        }
+
+        .indicators-container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .indicators-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .chart-header {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        .realtime-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #10b981;
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .realtime-dot {
+            width: 8px;
+            height: 8px;
+            background: white;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🚀 Point-Tron K线图表分析</h1>
+        <div class="controls">
+            <div class="control-group">
+                <label for="period">周期:</label>
+                <select id="period">
+                    <option value="1m">1分钟</option>
+                    <option value="5m">5分钟</option>
+                    <option value="15m">15分钟</option>
+                    <option value="1h" selected>1小时</option>
+                    <option value="4h">4小时</option>
+                    <option value="1d">1天</option>
+                </select>
+            </div>
+            <div class="control-group">
+                <label for="limit">数量:</label>
+                <select id="limit">
+                    <option value="50">50</option>
+                    <option value="100" selected>100</option>
+                    <option value="200">200</option>
+                    <option value="500">500</option>
+                </select>
+            </div>
+            <button onclick="refreshData()">刷新数据</button>
+            <button onclick="toggleRealtime()" id="realtimeBtn">开启实时</button>
+        </div>
+    </div>
+
+    <div class="dashboard">
+        <!-- 统计卡片 -->
+        <div class="stats-grid" id="statsGrid">
+            <!-- 动态生成统计卡片 -->
+        </div>
+
+        <!-- K线图表 -->
+        <div class="chart-container">
+            <div class="chart-header">
+                <h2 class="chart-title">区块打点分数 K线图</h2>
+                <div id="realtimeIndicator" style="display: none;">
+                    <span class="realtime-indicator">
+                        <span class="realtime-dot"></span>
+                        实时更新
+                    </span>
+                </div>
+            </div>
+            <canvas id="klineChart" width="800" height="400"></canvas>
+        </div>
+
+        <!-- 技术指标图表 -->
+        <div class="indicators-container">
+            <div class="chart-container">
+                <h3 class="chart-title">移动平均线</h3>
+                <canvas id="maChart" width="400" height="300"></canvas>
+            </div>
+            <div class="chart-container">
+                <h3 class="chart-title">RSI指标</h3>
+                <canvas id="rsiChart" width="400" height="300"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let klineChart, maChart, rsiChart;
+        let realtimeInterval;
+        let isRealtime = false;
+
+        // 初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            initCharts();
+            loadData();
+        });
+
+        // 初始化图表
+        function initCharts() {
+            // K线图表
+            const klineCtx = document.getElementById('klineChart').getContext('2d');
+            klineChart = new Chart(klineCtx, {
+                type: 'line',
+                data: { datasets: [] },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        intersect: false,
+                    },
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                displayFormats: {
+                                    minute: 'HH:mm',
+                                    hour: 'MM-dd HH:mm',
+                                    day: 'MM-dd'
+                                }
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: '累积分数'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    }
+                }
+            });
+
+            // 移动平均线图表
+            const maCtx = document.getElementById('maChart').getContext('2d');
+            maChart = new Chart(maCtx, {
+                type: 'line',
+                data: { datasets: [] },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            type: 'time'
+                        }
+                    }
+                }
+            });
+
+            // RSI图表
+            const rsiCtx = document.getElementById('rsiChart').getContext('2d');
+            rsiChart = new Chart(rsiCtx, {
+                type: 'line',
+                data: { datasets: [] },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: {
+                            type: 'time'
+                        },
+                        y: {
+                            min: 0,
+                            max: 100,
+                            title: {
+                                display: true,
+                                text: 'RSI'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+        }
+
+        // 加载数据
+        async function loadData() {
+            try {
+                showLoading();
+                
+                const period = document.getElementById('period').value;
+                const limit = document.getElementById('limit').value;
+                
+                // 获取K线数据
+                const klineResponse = await fetch(`/api/blocks/kline?period=${period}&limit=${limit}&realtime=${isRealtime}`);
+                const klineData = await klineResponse.json();
+                
+                if (!klineData.success) {
+                    throw new Error(klineData.error);
+                }
+                
+                // 获取技术指标数据
+                const indicatorsResponse = await fetch(`/api/blocks/kline/indicators?period=${period}&limit=${limit}`);
+                const indicatorsData = await indicatorsResponse.json();
+                
+                // 获取统计数据
+                const statsResponse = await fetch(`/api/blocks/kline/stats?period=${period}`);
+                const statsData = await statsResponse.json();
+                
+                // 更新图表
+                updateKLineChart(klineData.data.klineData, klineData.data.currentCandle);
+                updateIndicatorsCharts(klineData.data.klineData, indicatorsData.data.indicators);
+                updateStats(statsData.data.stats);
+                
+                hideLoading();
+            } catch (error) {
+                console.error('加载数据失败:', error);
+                showError('加载数据失败: ' + error.message);
+            }
+        }
+
+        // 更新K线图表
+        function updateKLineChart(klineData, currentCandle) {
+            const timestamps = klineData.map(k => new Date(k.timestamp));
+            
+            // 准备K线数据（用线图模拟）
+            const ohlcData = klineData.map((k, i) => ({
+                x: new Date(k.timestamp),
+                open: k.open,
+                high: k.high,
+                low: k.low,
+                close: k.close
+            }));
+            
+            // 收盘价线
+            const closeData = klineData.map(k => ({
+                x: new Date(k.timestamp),
+                y: k.close
+            }));
+            
+            // 成交量数据
+            const volumeData = klineData.map(k => ({
+                x: new Date(k.timestamp),
+                y: k.volume
+            }));
+
+            klineChart.data.datasets = [
+                {
+                    label: '收盘价',
+                    data: closeData,
+                    borderColor: '#667eea',
+                    backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                    fill: true,
+                    tension: 0.1
+                },
+                {
+                    label: '最高价',
+                    data: klineData.map(k => ({ x: new Date(k.timestamp), y: k.high })),
+                    borderColor: '#10b981',
+                    backgroundColor: 'transparent',
+                    fill: false,
+                    borderDash: [5, 5]
+                },
+                {
+                    label: '最低价',
+                    data: klineData.map(k => ({ x: new Date(k.timestamp), y: k.low })),
+                    borderColor: '#ef4444',
+                    backgroundColor: 'transparent',
+                    fill: false,
+                    borderDash: [5, 5]
+                }
+            ];
+
+            // 如果有当前K线数据，添加实时点
+            if (currentCandle && isRealtime) {
+                klineChart.data.datasets.push({
+                    label: '当前价格',
+                    data: [{ x: new Date(currentCandle.timestamp), y: currentCandle.close }],
+                    borderColor: '#f59e0b',
+                    backgroundColor: '#f59e0b',
+                    pointRadius: 8,
+                    showLine: false
+                });
+            }
+
+            klineChart.update();
+        }
+
+        // 更新技术指标图表
+        function updateIndicatorsCharts(klineData, indicators) {
+            const timestamps = klineData.map(k => new Date(k.timestamp));
+            
+            // 更新移动平均线图表
+            maChart.data.labels = timestamps;
+            maChart.data.datasets = [
+                {
+                    label: 'MA5',
+                    data: indicators.ma5.map((v, i) => ({ x: timestamps[i], y: v })),
+                    borderColor: '#f59e0b',
+                    backgroundColor: 'transparent'
+                },
+                {
+                    label: 'MA10',
+                    data: indicators.ma10.map((v, i) => ({ x: timestamps[i], y: v })),
+                    borderColor: '#10b981',
+                    backgroundColor: 'transparent'
+                },
+                {
+                    label: 'MA20',
+                    data: indicators.ma20.map((v, i) => ({ x: timestamps[i], y: v })),
+                    borderColor: '#ef4444',
+                    backgroundColor: 'transparent'
+                }
+            ];
+            maChart.update();
+
+            // 更新RSI图表
+            rsiChart.data.labels = timestamps;
+            rsiChart.data.datasets = [{
+                label: 'RSI',
+                data: indicators.rsi.map((v, i) => ({ x: timestamps[i], y: v })),
+                borderColor: '#8b5cf6',
+                backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                fill: true
+            }];
+            rsiChart.update();
+        }
+
+        // 更新统计数据
+        function updateStats(stats) {
+            const statsGrid = document.getElementById('statsGrid');
+            
+            const formatChange = (value) => {
+                const className = value > 0 ? 'positive' : value < 0 ? 'negative' : 'neutral';
+                const sign = value > 0 ? '+' : '';
+                return `<span class="${className}">${sign}${value}</span>`;
+            };
+            
+            statsGrid.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-value">${formatChange(stats.totalChange)}</div>
+                    <div class="stat-label">总变化</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value positive">+${stats.maxGain}</div>
+                    <div class="stat-label">最大涨幅</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value negative">-${stats.maxLoss}</div>
+                    <div class="stat-label">最大跌幅</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value positive">${stats.positiveCount}</div>
+                    <div class="stat-label">上涨周期</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value negative">${stats.negativeCount}</div>
+                    <div class="stat-label">下跌周期</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value neutral">${stats.avgVolume.toFixed(1)}</div>
+                    <div class="stat-label">平均成交量</div>
+                </div>
+            `;
+        }
+
+        // 刷新数据
+        function refreshData() {
+            loadData();
+        }
+
+        // 切换实时模式
+        function toggleRealtime() {
+            isRealtime = !isRealtime;
+            const btn = document.getElementById('realtimeBtn');
+            const indicator = document.getElementById('realtimeIndicator');
+            
+            if (isRealtime) {
+                btn.textContent = '关闭实时';
+                btn.style.background = '#ef4444';
+                indicator.style.display = 'block';
+                
+                // 开始实时更新
+                realtimeInterval = setInterval(loadData, 30000); // 30秒更新一次
+                loadData(); // 立即加载一次
+            } else {
+                btn.textContent = '开启实时';
+                btn.style.background = '#667eea';
+                indicator.style.display = 'none';
+                
+                // 停止实时更新
+                if (realtimeInterval) {
+                    clearInterval(realtimeInterval);
+                }
+            }
+        }
+
+        // 显示加载状态
+        function showLoading() {
+            // 可以添加加载动画
+        }
+
+        // 隐藏加载状态
+        function hideLoading() {
+            // 隐藏加载动画
+        }
+
+        // 显示错误信息
+        function showError(message) {
+            console.error(message);
+            // 可以添加错误提示UI
+        }
+
+        // 监听控件变化
+        document.getElementById('period').addEventListener('change', loadData);
+        document.getElementById('limit').addEventListener('change', loadData);
+    </script>
+</body>
+</html>
