@@ -1373,7 +1373,7 @@
                     <button class="btn-control" onclick="toggleKlineRealtime()" id="klineRealtimeBtn">
                         <i class="fas fa-play"></i> 开启实时
                     </button>
-                    <button class="btn-refresh" onclick="refreshKlineData()">
+                    <button class="btn-refresh" onclick="forceRefreshKlineData()">
                         <i class="fas fa-refresh"></i> 刷新数据
                     </button>
                 </div>
@@ -1919,6 +1919,13 @@
         let maChart;
         let rsiChart;
         
+        // 全局缓存K线数据，避免重复请求
+        let cachedKlineData = null;
+        let cachedIndicatorsData = null;
+        let cachedStatsData = null;
+        let lastDataUpdateTime = 0;
+        const DATA_CACHE_DURATION = 30000; // 30秒缓存
+
         // 智能分析相关变量
         let analysisData = {
             distribution: { balance: 0, trend: 'stable' },
@@ -3419,18 +3426,31 @@
                         const change = close - open;
                         const changePercent = open !== 0 ? ((change / Math.abs(open)) * 100).toFixed(2) : '0.00';
                         
-                        // 为负数数据优化显示
+                        // 调试信息：输出K线数据详情
+                        console.log('🔍 Tooltip调试:', {
+                            原始数据: data.data,
+                            开盘价: open,
+                            收盘价: close,
+                            最高价: high,
+                            最低价: low,
+                            变化量: change,
+                            变化率: changePercent + '%'
+                        });
+                        
+                        // 修复方向判断逻辑：红色K线是上涨，绿色K线是下跌
                         let direction, color;
                         if (change > 0) {
-                            direction = '📈 上涨';
-                            color = '#ff4757';
+                            direction = '📈 上涨'; // 收盘价 > 开盘价 = 上涨 = 红色
+                            color = '#ff4757'; // 红色
                         } else if (change < 0) {
-                            direction = '📉 下跌';
-                            color = '#2ed573';
+                            direction = '📉 下跌'; // 收盘价 < 开盘价 = 下跌 = 绿色
+                            color = '#2ed573'; // 绿色
                         } else {
-                            direction = '▶️ 横盘';
-                            color = '#ffa502';
+                            direction = '▶️ 横盘'; // 收盘价 = 开盘价 = 横盘
+                            color = '#ffa502'; // 黄色
                         }
+                        
+                        console.log('🎯 判断结果:', { 方向: direction, 颜色: color, '变化量 > 0': change > 0 });
                         
                         // 为负数添加特殊标识
                         const formatValue = (val) => {
@@ -3450,7 +3470,7 @@
                                 <div>最低: <span style="color: #2ed573;">${formatValue(low)}</span></div>
                                 <div>涨跌: <span style="color: ${color};">${change > 0 ? '+' : ''}${change} (${changePercent}%)</span></div>
                                 <div style="margin-top: 4px; font-size: 11px; color: #9ca3af;">
-                                    ℹ️ 支持负数数据显示
+                                    ℹ️ 红色=上涨，绿色=下跌，支持负数数据
                                 </div>
                             </div>
                         `;
@@ -3519,10 +3539,10 @@
                     type: 'candlestick',
                     data: candlestickData,
                     itemStyle: {
-                        color: '#ff4757',      // 阳线颜色(上涨) - 红色
-                        color0: '#2ed573',     // 阴线颜色(下跌) - 绿色
-                        borderColor: '#ff4757',
-                        borderColor0: '#2ed573'
+                        color: '#ff4757',      // 阳线颜色(上涨) - 红色：close > open
+                        color0: '#2ed573',     // 阴线颜色(下跌) - 绿色：close < open
+                        borderColor: '#ff4757',     // 阳线边框色
+                        borderColor0: '#2ed573'     // 阴线边框色
                     },
                     barMaxWidth: 8,
                     // 为负数K线添加零轴标记线
@@ -3535,7 +3555,7 @@
                                 type: 'solid'
                             },
                             label: {
-                                formatter: '零轴线',
+                                formatter: '零轴线 (上涨红色，下跌绿色)',
                                 position: 'end',
                                 color: '#ffa502'
                             }
@@ -3650,32 +3670,19 @@
             }
         }
 
-        // 切换K线数据数量
-        function changeKlineLimit() {
-            const select = document.getElementById('klineLimit');
-            currentKlineLimit = parseInt(select.value);
-            console.log('🔄 切换K线数量为:', currentKlineLimit, '个1分钟K线');
-            refreshKlineData();
-        }
-        
-        // 切换K线图表类型
-        function switchKlineChart(chartType) {
-            // 更新按钮状态
-            document.querySelectorAll('.chart-controls .btn-chart-control').forEach(btn => {
-                btn.classList.remove('active');
-            });
-            document.getElementById(chartType + 'Btn').classList.add('active');
-            
-            currentKlineChartType = chartType;
-            // 重新渲染图表
-            if (klineChart) {
-                refreshKlineData();
-            }
-        }
-
-        // 刷新K线数据
+        // 刷新K线数据 - 优化版本，增加数据缓存
         async function refreshKlineData() {
             try {
+                // 检查缓存是否还有效
+                const now = Date.now();
+                if (cachedKlineData && (now - lastDataUpdateTime) < DATA_CACHE_DURATION) {
+                    console.log('🚀 使用缓存K线数据，跳过网络请求');
+                    updateKlineChart(cachedKlineData, null);
+                    updateIndicatorsCharts(cachedKlineData, cachedIndicatorsData);
+                    updateKlineStats(cachedStatsData);
+                    return;
+                }
+                
                 console.log('🔍 开始刷新1分钟K线数据...');
                 console.log('🔑 当前token:', token ? 'token存在' : 'token不存在');
                 
@@ -3689,21 +3696,25 @@
                     description: klineData.description
                 });
                 
+                // 缓存数据
+                cachedKlineData = klineData.klineData;
+                lastDataUpdateTime = now;
+                
                 // 获取技术指标数据（基于生成的K线数据计算）
-                const indicatorsData = await calculateTechnicalIndicators(klineData.klineData);
+                cachedIndicatorsData = await calculateTechnicalIndicators(cachedKlineData);
                 
                 // 获取统计数据
-                const statsData = calculateKlineStats(klineData.klineData);
+                cachedStatsData = calculateKlineStats(cachedKlineData);
                 
                 // 更新图表
-                updateKlineChart(klineData.klineData, null);
-                updateIndicatorsCharts(klineData.klineData, indicatorsData);
-                updateKlineStats(statsData);
+                updateKlineChart(cachedKlineData, null);
+                updateIndicatorsCharts(cachedKlineData, cachedIndicatorsData);
+                updateKlineStats(cachedStatsData);
                 
                 // 显示K线信息
                 updateKlineInfo(klineData);
                 
-                console.log('✅ 1分钟K线数据刷新完成，生成了', klineData.klineData.length, '个K线蜡烛');
+                console.log('✅ 1分钟K线数据刷新完成，生成了', cachedKlineData.length, '个K线蜡烛');
             } catch (error) {
                 console.error('❌ 刷新1分钟K线数据失败:', error);
                 showErrorMessage('1分钟K线数据加载失败: ' + error.message);
@@ -3716,7 +3727,42 @@
                 }
             }
         }
+
+        // 切换K线数据数量 - 清除缓存，强制重新获取
+        function changeKlineLimit() {
+            const select = document.getElementById('klineLimit');
+            currentKlineLimit = parseInt(select.value);
+            console.log('🔄 切换K线数量为:', currentKlineLimit, '个1分钟K线');
+            
+            // 清除缓存，因为数据量变了
+            cachedKlineData = null;
+            lastDataUpdateTime = 0;
+            
+            refreshKlineData();
+        }
         
+        // 切换K线图表类型 - 优化版本，只更新显示而不重新获取数据
+        function switchKlineChart(chartType) {
+            console.log('🔄 切换K线图表类型到:', chartType);
+            
+            // 更新按钮状态
+            document.querySelectorAll('.chart-controls .btn-chart-control').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.getElementById(chartType + 'Btn').classList.add('active');
+            
+            currentKlineChartType = chartType;
+            
+            // 如果有缓存数据，直接更新图表显示，不重新请求数据
+            if (cachedKlineData && cachedKlineData.length > 0) {
+                console.log('🚀 使用缓存数据快速切换图表类型');
+                updateKlineChart(cachedKlineData, null);
+            } else {
+                console.log('🔄 无缓存数据，重新获取');
+                refreshKlineData();
+            }
+        }
+
         // 更新技术指标图表
         function updateIndicatorsCharts(klineData, indicators) {
             if (!klineData || klineData.length === 0) return;
@@ -3853,6 +3899,16 @@
             if (klineChart) {
                 refreshKlineData();
             }
+        }
+        
+        // 强制刷新K线数据（清除缓存）
+        function forceRefreshKlineData() {
+            console.log('💪 强制刷新K线数据，清除缓存');
+            cachedKlineData = null;
+            cachedIndicatorsData = null;
+            cachedStatsData = null;
+            lastDataUpdateTime = 0;
+            refreshKlineData();
         }
         
         // 切换K线实时模式
